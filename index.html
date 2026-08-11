@@ -10,7 +10,56 @@
             <h1>Gerenciador de Tarefas Acadêmicas</h1>
         </header>
 
-        <main></main>
+        <main>
+            <!-- Busca e Filtros -->
+            <section aria-labelledby="titulo-filtros">
+                <h2 id="titulo-filtros">Busca e Filtros</h2>
+                <form action="#" method="GET">
+                    
+                    <div>
+                        <label for="busca-titulo">Buscar por título da tarefa:</label>
+                        <input type="search" id="busca-titulo" name="busca">
+                    </div>
+
+                    <fieldset>
+                        <legend>Filtrar por Status</legend>
+                        
+                        <input type="radio" id="status-todos" name="status" value="todos" checked>
+                        <label for="status-todos">Todos</label>
+
+                        <input type="radio" id="status-fazer" name="status" value="a_fazer">
+                        <label for="status-fazer">A Fazer</label>
+
+                        <input type="radio" id="status-andamento" name="status" value="em_andamento">
+                        <label for="status-andamento">Em Andamento</label>
+
+                        <input type="radio" id="status-revisao" name="status" value="em_revisao">
+                        <label for="status-revisao">Em Revisão</label>
+
+                        <input type="radio" id="status-concluida" name="status" value="concluida">
+                        <label for="status-concluida">Concluída</label>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Filtrar por Prioridade</legend>
+                        
+                        <input type="radio" id="prioridade-todas" name="prioridade" value="todas" checked>
+                        <label for="prioridade-todas">Todas</label>
+
+                        <input type="radio" id="prioridade-baixa" name="prioridade" value="baixa">
+                        <label for="prioridade-baixa">Baixa</label>
+
+                        <input type="radio" id="prioridade-media" name="prioridade" value="media">
+                        <label for="prioridade-media">Média</label>
+
+                        <input type="radio" id="prioridade-alta" name="prioridade" value="alta">
+                        <label for="prioridade-alta">Alta</label>
+                    </fieldset>
+
+                    <button type="submit">Aplicar Filtros</button>
+                </form>
+            </section>
+        </main>
 
         <footer></footer>
     </body>
