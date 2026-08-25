@@ -1,0 +1,27 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+:root {
+    /* Cores de Superfície, Texto e Borda (Contraste > 4.5:1) */
+    --cor-fundo: #f4f5f7;
+    --cor-fundo-cartao: #ffffff;
+    --cor-texto: #172b4d;
+    --cor-texto-secundario: #42526e;
+    --cor-borda: #dfe1e6;
+    --cor-foco: #0052cc;
+
+    /* Cores de Status (Usadas nas bordas dos cartões) */
+    --status-fazer: #ff9f1a;
+    --status-andamento: #0052cc;
+    --status-revisao: #ff5630;
+    --status-concluida: #36b37e;
+
+    /* Escala de Espaçamento */
+    --espaco-p: 0.5rem;
+    --espaco-m: 1rem;
+    --espaco-g: 1.5rem;
+
+    /* Raio de Canto */
+    --raio-borda: 8px;
+}
