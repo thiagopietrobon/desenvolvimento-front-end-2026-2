@@ -56,3 +56,20 @@ button, input, label {
     min-width: 24px;
     cursor: pointer;
 }
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espaco-m);
+    margin-bottom: var(--espaco-g);
+}
+
+fieldset {
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio-borda);
+    padding: var(--espaco-m);
+    display: flex;
+    flex-direction: column;
+    gap: var(--espaco-p);
+    margin: 0;
+}
