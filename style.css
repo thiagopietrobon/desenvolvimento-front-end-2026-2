@@ -137,3 +137,17 @@ article p:nth-of-type(3) {
     padding-top: var(--espaco-p);
     border-top: 1px dashed var(--cor-borda);
 }
+
+/* Cores de status */
+section[aria-labelledby="status-a-fazer"] article {
+    border-top: 4px solid var(--status-fazer);
+}
+section[aria-labelledby="status-em-andamento"] article {
+    border-top: 4px solid var(--status-andamento);
+}
+section[aria-labelledby="status-em-revisao"] article {
+    border-top: 4px solid var(--status-revisao);
+}
+section[aria-labelledby="status-concluida"] article {
+    border-top: 4px solid var(--status-concluida);
+}
