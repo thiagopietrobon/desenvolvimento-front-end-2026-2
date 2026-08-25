@@ -101,3 +101,39 @@ section[aria-labelledby^="status-"] ul {
     flex-direction: column;
     gap: var(--espaco-m);
 }
+
+article {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espaco-p);
+    background-color: var(--cor-fundo-cartao);
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio-borda);
+    padding: var(--espaco-m);
+    height: 100%;
+}
+
+/* Truncamento do título com reticências */
+article h4 {
+    margin: 0;
+    flex-grow: 1; /* Ocupa o espaço livre no topo */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0; /* Obrigatório para o truncamento funcionar no Flexbox */
+}
+
+article p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--cor-texto-secundario);
+}
+
+/* Organização interna do cartão: Prazo posicionado na base */
+/* Flex Order para empurrar o Prazo (3º parágrafo) para o final, visualmente após a Prioridade */
+article p:nth-of-type(3) {
+    order: 99;
+    margin-top: auto; /* Empurra o item para a base do cartão */
+    padding-top: var(--espaco-p);
+    border-top: 1px dashed var(--cor-borda);
+}
