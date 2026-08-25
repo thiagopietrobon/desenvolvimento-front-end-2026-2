@@ -73,3 +73,16 @@ fieldset {
     gap: var(--espaco-p);
     margin: 0;
 }
+
+/* Container principal */
+section[aria-labelledby="titulo-quadro"] {
+    display: grid;
+    grid-template-columns: 1fr; /* Mobile-first: 1 coluna empilhada */
+    gap: var(--espaco-g);
+}
+
+/* O título H2 deve cruzar todas as colunas do Grid */
+#titulo-quadro {
+    grid-column: 1 / -1;
+    margin-bottom: 0;
+}
