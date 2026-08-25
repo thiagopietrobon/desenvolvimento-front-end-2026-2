@@ -3,7 +3,7 @@
 }
 
 :root {
-    /* Cores de Superfície, Texto e Borda (Contraste > 4.5:1) */
+    /* Cores de Superfície, Texto e Borda */
     --cor-fundo: #f4f5f7;
     --cor-fundo-cartao: #ffffff;
     --cor-texto: #172b4d;
@@ -11,7 +11,7 @@
     --cor-borda: #dfe1e6;
     --cor-foco: #0052cc;
 
-    /* Cores de Status (Usadas nas bordas dos cartões) */
+    /* Cores de Status */
     --status-fazer: #ff9f1a;
     --status-andamento: #0052cc;
     --status-revisao: #ff5630;
@@ -24,4 +24,22 @@
 
     /* Raio de Canto */
     --raio-borda: 8px;
+}
+
+html {
+    /* clamp combinando rem e vw para tipografia responsiva */
+    font-size: clamp(100%, 0.875rem + 0.4vw, 1.125rem);
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto);
+    margin: 0;
+    padding: var(--espaco-m);
+    line-height: 1.5;
+}
+
+h1, h2, h3, h4 {
+    margin-top: 0;
 }
