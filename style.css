@@ -75,22 +75,11 @@ fieldset {
 }
 
 /* Container principal */
-section[aria-labelledby="titulo-quadro"] {
-    display: grid;
-    grid-template-columns: 1fr; /* Mobile-first: 1 coluna empilhada */
-    gap: var(--espaco-g);
-}
-
-/* O título H2 deve cruzar todas as colunas do Grid */
-#titulo-quadro {
-    grid-column: 1 / -1;
-    margin-bottom: 0;
-}
-
 section[aria-labelledby^="status-"] {
     display: flex;
     flex-direction: column;
     gap: var(--espaco-m);
+    min-width: 0;
 }
 
 section[aria-labelledby^="status-"] ul {
@@ -100,6 +89,11 @@ section[aria-labelledby^="status-"] ul {
     display: flex;
     flex-direction: column;
     gap: var(--espaco-m);
+    min-width: 0;
+}
+
+section[aria-labelledby^="status-"] li {
+    min-width: 0;
 }
 
 article {
@@ -111,6 +105,7 @@ article {
     border-radius: var(--raio-borda);
     padding: var(--espaco-m);
     height: 100%;
+    min-width: 0;
 }
 
 /* Truncamento do título com reticências */
