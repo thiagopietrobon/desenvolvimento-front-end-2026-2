@@ -151,3 +151,25 @@ section[aria-labelledby="status-em-revisao"] article {
 section[aria-labelledby="status-concluida"] article {
     border-top: 4px solid var(--status-concluida);
 }
+
+/* Breakpoint: 768px
+   Justificativa: A partir desta largura, o conteúdo empilhado em uma única coluna deixa os cartões muito largos e a rolagem vertical excessivamente longa, dificultando a navegação. A quebra para 2 colunas resolve essa proporção. */
+@media (min-width: 768px) {
+    section[aria-labelledby="titulo-quadro"] {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    form {
+        flex-direction: row;
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+}
+
+/* Breakpoint: 1024px
+   Justificativa: Em telas mais largas, o grid de apenas 2 colunas faz com que o texto dos cartões fique esticado demais horizontalmente, "quebrando" a proporção clássica de um quadro de tarefas. A quebra para 4 colunas organiza os status lado a lado de forma ideal. */
+@media (min-width: 1024px) {
+    section[aria-labelledby="titulo-quadro"] {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
