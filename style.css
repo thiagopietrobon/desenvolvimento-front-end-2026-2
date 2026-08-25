@@ -75,6 +75,17 @@ fieldset {
 }
 
 /* Container principal */
+section[aria-labelledby="titulo-quadro"] {
+    display: grid;
+    grid-template-columns: 1fr; /* Mobile-first: 1 coluna empilhada */
+    gap: var(--espaco-g);
+}
+
+#titulo-quadro {
+    grid-column: 1 / -1;
+    margin-bottom: 0;
+}
+
 section[aria-labelledby^="status-"] {
     display: flex;
     flex-direction: column;
