@@ -43,3 +43,16 @@ body {
 h1, h2, h3, h4 {
     margin-top: 0;
 }
+
+/* Foco visível para navegação por teclado */
+:focus-visible {
+    outline: 3px solid var(--cor-foco);
+    outline-offset: 2px;
+}
+
+/* Alvos de clique mínimos de 24x24px */
+button, input, label {
+    min-height: 24px;
+    min-width: 24px;
+    cursor: pointer;
+}
