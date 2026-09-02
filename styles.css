@@ -45,6 +45,11 @@ h1, h2, h3, h4 {
     margin-top: 0;
 }
 
+h2 {
+    border-bottom: 1px solid var(--cor-borda);
+    padding-bottom: var(--espaco-p);
+}
+
 /* Foco visível para navegação por teclado */
 :focus-visible {
     outline: 3px solid var(--cor-foco);
