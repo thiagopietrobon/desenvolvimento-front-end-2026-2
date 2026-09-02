@@ -85,6 +85,14 @@ fieldset {
     row-gap: var(--espaco-p);
 }
 
+legend {
+    color: var(--accent-color);
+    font-weight: bold;
+    padding: 0 var(--espaco-p);
+    width: 100%; /* Força o legend a ocupar o topo sozinho */
+    margin-bottom: var(--espaco-p);
+}
+
 input[type="search"] {
     background-color: var(--cor-fundo-cartao);
     color: var(--cor-texto);
