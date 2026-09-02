@@ -235,6 +235,15 @@ footer {
     form div {
         flex-basis: 100%;
     }
+
+    fieldset {
+        flex: 1;
+    }
+    
+    button[type="submit"] {
+        align-self: center;
+        margin-top: 24px;
+    }
 }
 
 /* Breakpoint: 1024px
