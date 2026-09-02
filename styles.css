@@ -83,6 +83,24 @@ fieldset {
     margin: 0;
 }
 
+input[type="search"] {
+    background-color: var(--cor-fundo-cartao);
+    color: var(--cor-texto);
+    border: 1px solid var(--cor-borda);
+    padding: var(--espaco-p);
+    border-radius: 4px;
+}
+
+button[type="submit"] {
+    background-color: var(--status-andamento);
+    color: #121212;
+    border: none;
+    padding: var(--espaco-p) var(--espaco-m);
+    border-radius: 4px;
+    font-weight: bold;
+    align-self: flex-start;
+}
+
 /* Container principal */
 section[aria-labelledby="titulo-quadro"] {
     display: grid;
