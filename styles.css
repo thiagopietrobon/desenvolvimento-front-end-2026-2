@@ -193,6 +193,12 @@ section[aria-labelledby="status-concluida"] article {
     border-left: 4px solid var(--status-concluida);
 }
 
+footer {
+    margin-top: var(--espaco-g);
+    text-align: center;
+    color: var(--cor-texto-secundario);
+}
+
 /* Breakpoint: 768px
    Justificativa: A partir desta largura, o conteúdo empilhado em uma única coluna deixa os cartões muito largos e a rolagem vertical excessivamente longa, dificultando a navegação. A quebra para 2 colunas resolve essa proporção. */
 @media (min-width: 768px) {
