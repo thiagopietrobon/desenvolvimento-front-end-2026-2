@@ -166,6 +166,10 @@ article p {
     color: var(--cor-texto-secundario);
 }
 
+article p strong {
+    color: var(--cor-texto);
+}
+
 /* Organização interna do cartão: Prazo posicionado na base */
 /* Flex Order para empurrar o Prazo (3º parágrafo) para o final, visualmente após a Prioridade */
 article p:nth-of-type(3) {
@@ -177,16 +181,16 @@ article p:nth-of-type(3) {
 
 /* Cores de status */
 section[aria-labelledby="status-a-fazer"] article {
-    border-top: 4px solid var(--status-fazer);
+    border-left: 4px solid var(--status-fazer);
 }
 section[aria-labelledby="status-em-andamento"] article {
-    border-top: 4px solid var(--status-andamento);
+    border-left: 4px solid var(--status-andamento);
 }
 section[aria-labelledby="status-em-revisao"] article {
-    border-top: 4px solid var(--status-revisao);
+    border-left: 4px solid var(--status-revisao);
 }
 section[aria-labelledby="status-concluida"] article {
-    border-top: 4px solid var(--status-concluida);
+    border-left: 4px solid var(--status-concluida);
 }
 
 /* Breakpoint: 768px
