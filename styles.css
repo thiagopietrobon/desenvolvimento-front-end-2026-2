@@ -89,17 +89,17 @@ legend {
     color: var(--accent-color);
     font-weight: bold;
     padding: 0 var(--espaco-p);
-    width: 100%; /* Força o legend a ocupar o topo sozinho */
+    width: 100%;
     margin-bottom: var(--espaco-p);
 }
 
 fieldset input[type="radio"] {
-    margin-right: 0.5rem; /* Espaço entre o botãozinho e a sua palavra */
+    margin-right: 0.5rem;
     margin-bottom: 0;
 }
 
 fieldset label {
-    margin-right: 1.5rem; /* Espaço entre esta opção e a PRÓXIMA opção */
+    margin-right: 1.5rem;
     margin-bottom: 0;
 }
 
