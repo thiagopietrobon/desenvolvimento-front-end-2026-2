@@ -93,6 +93,16 @@ legend {
     margin-bottom: var(--espaco-p);
 }
 
+fieldset input[type="radio"] {
+    margin-right: 0.5rem; /* Espaço entre o botãozinho e a sua palavra */
+    margin-bottom: 0;
+}
+
+fieldset label {
+    margin-right: 1.5rem; /* Espaço entre esta opção e a PRÓXIMA opção */
+    margin-bottom: 0;
+}
+
 input[type="search"] {
     background-color: var(--cor-fundo-cartao);
     color: var(--cor-texto);
