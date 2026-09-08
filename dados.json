@@ -1,0 +1,76 @@
+{
+    "tarefas": [
+        {
+            "id": "t1",
+            "titulo": "Estruturar banco de dados",
+            "projeto": "Banco de Dados Avançados",
+            "responsavel": "Thiago",
+            "status": "a-fazer",
+            "prioridade": "Alta",
+            "prazo": "2026-09-15"
+        },
+        {
+            "id": "t2",
+            "titulo": "Resumo do artigo base",
+            "projeto": "Metodologia Científica",
+            "responsavel": "Thiago",
+            "status": "a-fazer",
+            "prioridade": "Média",
+            "prazo": "2026-09-20"
+        },
+        {
+            "id": "t3",
+            "titulo": "Coleta de dados da pesquisa",
+            "projeto": "PI EM TI I",
+            "responsavel": "Thiago",
+            "status": "em-andamento",
+            "prioridade": "Alta",
+            "prazo": "2026-09-30"
+        },
+        {
+            "id": "t4",
+            "titulo": "Prototipar telas do sistema",
+            "projeto": "Engenharia de Software",
+            "responsavel": "Thiago",
+            "status": "em-andamento",
+            "prioridade": "Média",
+            "prazo": "2026-09-05"
+        },
+        {
+            "id": "t5",
+            "titulo": "Revisar citações ABNT",
+            "projeto": "PI EM TI I",
+            "responsavel": "Thiago",
+            "status": "em-revisao",
+            "prioridade": "Alta",
+            "prazo": "2026-09-01"
+        },
+        {
+            "id": "t6",
+            "titulo": "Validação do questionário",
+            "projeto": "PI EM TI I",
+            "responsavel": "Thiago",
+            "status": "em-revisao",
+            "prioridade": "Média",
+            "prazo": "2026-09-03"
+        },
+        {
+            "id": "t7",
+            "titulo": "Escolha do tema do projeto",
+            "projeto": "PI EM TI I",
+            "responsavel": "Thiago",
+            "status": "concluida",
+            "prioridade": "Baixa",
+            "prazo": "2026-08-15"
+        },
+        {
+            "id": "t8",
+            "titulo": "Implementar módulo js/api.js",
+            "projeto": "Desenvolvimento Frontend",
+            "responsavel": "Thiago",
+            "status": "concluida",
+            "prioridade": "Alta",
+            "prazo": "2026-09-08"
+        }
+    ]
+}
