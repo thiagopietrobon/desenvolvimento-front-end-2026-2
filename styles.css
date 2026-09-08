@@ -28,7 +28,6 @@
 }
 
 html {
-    /* clamp combinando rem e vw para tipografia responsiva */
     font-size: clamp(100%, 0.875rem + 0.4vw, 1.125rem);
 }
 
@@ -103,7 +102,7 @@ fieldset {
 }
 
 legend {
-    color: var(--accent-color);
+    color: var(--cor-foco);
     font-weight: bold;
     padding: 0 var(--espaco-p);
     width: 100%;
@@ -141,7 +140,7 @@ button[type="submit"] {
 /* Container principal */
 section[aria-labelledby="titulo-quadro"] {
     display: grid;
-    grid-template-columns: 1fr; /* Mobile-first: 1 coluna empilhada */
+    grid-template-columns: 1fr;
     gap: var(--espaco-g);
 }
 
@@ -151,7 +150,7 @@ section[aria-labelledby="titulo-quadro"] {
     border-bottom: none;
 }
 
-section[aria-labelledby^="status-"] {
+section[aria-labelledby^="quadro-"] {
     display: flex;
     flex-direction: column;
     gap: var(--espaco-m);
@@ -161,7 +160,7 @@ section[aria-labelledby^="status-"] {
     border-radius: var(--raio-borda);
 }
 
-section[aria-labelledby^="status-"] ul {
+section[aria-labelledby^="quadro-"] ul {
     list-style: none;
     padding: 0;
     margin: 0;
@@ -171,8 +170,16 @@ section[aria-labelledby^="status-"] ul {
     min-width: 0;
 }
 
-section[aria-labelledby^="status-"] li {
+section[aria-labelledby^="quadro-"] li {
     min-width: 0;
+}
+
+/* Estilo para avisos em colunas sem tarefas */
+.coluna-vazia {
+    color: var(--cor-texto-secundario);
+    font-style: italic;
+    font-size: 0.85rem;
+    padding: var(--espaco-p);
 }
 
 article {
@@ -190,11 +197,11 @@ article {
 /* Truncamento do título com reticências */
 article h4 {
     margin: 0;
-    flex-grow: 1; /* Ocupa o espaço livre no topo */
+    flex-grow: 1;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    min-width: 0; /* Obrigatório para o truncamento funcionar no Flexbox */
+    min-width: 0;
 }
 
 article p {
@@ -207,11 +214,9 @@ article p strong {
     color: var(--cor-texto);
 }
 
-/* Organização interna do cartão: Prazo posicionado na base */
-/* Flex Order para empurrar o Prazo (3º parágrafo) para o final, visualmente após a Prioridade */
 article p:nth-of-type(4) {
     order: 99;
-    margin-top: auto; /* Empurra o item para a base do cartão */
+    margin-top: auto;
     padding-top: var(--espaco-p);
     border-top: 1px dashed var(--cor-borda);
 }
