@@ -50,6 +50,23 @@ h2 {
     padding-bottom: var(--espaco-p);
 }
 
+/* Região de Status da Aplicação (Acessibilidade) */
+[data-estado] {
+    grid-column: 1 / -1;
+    padding: var(--espaco-p) var(--espaco-m);
+    margin: 0 0 var(--espaco-m) 0;
+    background-color: var(--cor-fundo-coluna);
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio-borda);
+    color: var(--cor-foco);
+    font-weight: bold;
+    font-size: 0.95rem;
+}
+
+[data-estado]:empty {
+    display: none;
+}
+
 /* Foco visível para navegação por teclado */
 :focus-visible {
     outline: 3px solid var(--cor-foco);
