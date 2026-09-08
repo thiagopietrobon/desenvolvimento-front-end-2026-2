@@ -230,16 +230,16 @@ article button[data-acao="ver-detalhes"] {
 }
 
 /* Cores de status */
-section[aria-labelledby="status-a-fazer"] article {
+section[aria-labelledby="quadro-a-fazer"] article {
     border-left: 4px solid var(--status-fazer);
 }
-section[aria-labelledby="status-em-andamento"] article {
+section[aria-labelledby="quadro-em-andamento"] article {
     border-left: 4px solid var(--status-andamento);
 }
-section[aria-labelledby="status-em-revisao"] article {
+section[aria-labelledby="quadro-em-revisao"] article {
     border-left: 4px solid var(--status-revisao);
 }
-section[aria-labelledby="status-concluida"] article {
+section[aria-labelledby="quadro-concluida"] article {
     border-left: 4px solid var(--status-concluida);
 }
 
