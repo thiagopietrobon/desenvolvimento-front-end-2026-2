@@ -3,7 +3,7 @@
 }
 
 :root {
-    /* Cores de Superfície, Texto e Borda (Contraste verificado) */
+    /* Cores de Superfície, Texto e Borda */
     --cor-fundo: #121212;
     --cor-fundo-coluna: #1e1e1e;
     --cor-fundo-cartao: #2d2d2d;
@@ -72,7 +72,7 @@ h2 {
     outline-offset: 2px;
 }
 
-/* Alvos de clique mínimos de 24x24px */
+/* Alvos de clique mínimos */
 button, input, select, label {
     min-height: 24px;
     min-width: 24px;
@@ -89,43 +89,24 @@ form {
     border-radius: var(--raio-borda);
 }
 
-form div {
+/* 1. Linha Superior de Ações Principais */
+.linha-controles-topo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espaco-m);
+}
+
+.campo-busca, .campo-ordenacao {
     display: flex;
     flex-direction: column;
     gap: var(--espaco-p);
 }
 
-fieldset {
-    border: 1px solid var(--cor-borda);
-    border-radius: var(--raio-borda);
-    padding: var(--espaco-m);
-    margin: 0;
+.acoes-formulario {
     display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    row-gap: var(--espaco-p);
+    align-items: flex-end;
 }
 
-legend {
-    color: var(--cor-foco);
-    font-weight: bold;
-    padding: 0 var(--espaco-p);
-    width: 100%;
-    margin-bottom: var(--espaco-p);
-}
-
-fieldset input[type="radio"] {
-    margin-right: 0.5rem;
-    margin-bottom: 0;
-}
-
-fieldset label {
-    margin-right: 1.5rem;
-    margin-bottom: 0;
-}
-
-/* Inputs e Selects alinhados com o tema */
 input[type="search"], select {
     background-color: var(--cor-fundo-cartao);
     color: var(--cor-texto);
@@ -134,28 +115,19 @@ input[type="search"], select {
     border-radius: 4px;
     font-size: 0.95rem;
     transition: border-color 0.2s ease;
+    width: 100%;
 }
 
 input[type="search"]:focus, select:focus {
     border-color: var(--cor-foco);
 }
 
-/* Estilização das opções do dropdown nativo */
 select option {
     background-color: var(--cor-fundo-coluna);
     color: var(--cor-texto);
     padding: var(--espaco-p);
 }
 
-.acoes-formulario {
-    display: flex;
-    flex-direction: row;
-    gap: var(--espaco-m);
-    align-items: center;
-    margin-top: var(--espaco-p);
-}
-
-/* Botão Limpar Filtros integrado à paleta de destaque */
 #btn-limpar {
     background-color: transparent;
     color: var(--cor-foco);
@@ -163,6 +135,8 @@ select option {
     padding: var(--espaco-p) var(--espaco-m);
     border-radius: 4px;
     font-weight: bold;
+    height: 40px;
+    width: 100%;
     transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
 }
 
@@ -175,7 +149,48 @@ select option {
     transform: scale(0.98);
 }
 
-/* Container principal */
+/* 2. Linha Inferior de Filtros (Radios) */
+.linha-filtros-radios {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espaco-m);
+}
+
+fieldset {
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio-borda);
+    padding: var(--espaco-m);
+    margin: 0;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--espaco-p) var(--espaco-m);
+    flex: 1;
+}
+
+legend {
+    color: var(--cor-foco);
+    font-weight: bold;
+    padding: 0 var(--espaco-p);
+    width: 100%;
+    margin-bottom: var(--espaco-p);
+}
+
+/* Previne quebra de linha entre o botão radio e o rótulo */
+.item-radio {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    white-space: nowrap;
+}
+
+.item-radio input[type="radio"],
+.item-radio label {
+    margin: 0;
+}
+
+/* Container principal do Quadro */
 section[aria-labelledby="titulo-quadro"] {
     display: grid;
     grid-template-columns: 1fr;
@@ -212,7 +227,6 @@ section[aria-labelledby^="quadro-"] li {
     min-width: 0;
 }
 
-/* Estilo para avisos em colunas sem tarefas */
 .coluna-vazia {
     color: var(--cor-texto-secundario);
     font-style: italic;
@@ -232,7 +246,6 @@ article {
     min-width: 0;
 }
 
-/* Truncamento do título com reticências */
 article h4 {
     margin: 0;
     flex-grow: 1;
@@ -259,7 +272,6 @@ article p:nth-of-type(4) {
     border-top: 1px dashed var(--cor-borda);
 }
 
-/* Botão do cartão */
 article button[data-acao="ver-detalhes"] {
     background-color: transparent;
     color: var(--cor-foco);
@@ -272,7 +284,7 @@ article button[data-acao="ver-detalhes"] {
     align-self: flex-start;
 }
 
-/* Cores de status */
+/* Cores das bordas dos cartões por status */
 section[aria-labelledby="quadro-a-fazer"] article {
     border-left: 4px solid var(--status-fazer);
 }
@@ -292,43 +304,41 @@ footer {
     color: var(--cor-texto-secundario);
 }
 
-/* Breakpoint: 768px */
+/* Breakpoint 768px */
 @media (min-width: 768px) {
     section[aria-labelledby="titulo-quadro"] {
         grid-template-columns: repeat(2, 1fr);
     }
-    
-    form {
+
+    .linha-controles-topo {
         flex-direction: row;
-        align-items: flex-start;
-        flex-wrap: wrap;
-    }
-    
-    form > div {
-        flex: 1 1 calc(50% - var(--espaco-m));
+        align-items: flex-end;
     }
 
-    fieldset {
-        flex: 1 1 100%;
-    }
-    
-    .acoes-formulario {
-        flex-basis: 100%;
-        justify-content: flex-end;
-    }
-}
-
-/* Breakpoint: 1024px */
-@media (min-width: 1024px) {
-    section[aria-labelledby="titulo-quadro"] {
-        grid-template-columns: repeat(4, 1fr);
+    .campo-busca {
+        flex: 2;
     }
 
-    form > div {
+    .campo-ordenacao {
         flex: 1;
     }
 
-    fieldset {
-        flex: 2;
+    .acoes-formulario {
+        flex: 0 0 auto;
+    }
+
+    #btn-limpar {
+        width: auto;
+    }
+
+    .linha-filtros-radios {
+        flex-direction: row;
+    }
+}
+
+/* Breakpoint 1024px */
+@media (min-width: 1024px) {
+    section[aria-labelledby="titulo-quadro"] {
+        grid-template-columns: repeat(4, 1fr);
     }
 }
