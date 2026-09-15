@@ -125,13 +125,26 @@ fieldset label {
     margin-bottom: 0;
 }
 
+/* Inputs e Selects alinhados com o tema */
 input[type="search"], select {
     background-color: var(--cor-fundo-cartao);
     color: var(--cor-texto);
     border: 1px solid var(--cor-borda);
-    padding: var(--espaco-p);
+    padding: var(--espaco-p) var(--espaco-m);
     border-radius: 4px;
     font-size: 0.95rem;
+    transition: border-color 0.2s ease;
+}
+
+input[type="search"]:focus, select:focus {
+    border-color: var(--cor-foco);
+}
+
+/* Estilização das opções do dropdown nativo */
+select option {
+    background-color: var(--cor-fundo-coluna);
+    color: var(--cor-texto);
+    padding: var(--espaco-p);
 }
 
 .acoes-formulario {
@@ -142,19 +155,24 @@ input[type="search"], select {
     margin-top: var(--espaco-p);
 }
 
+/* Botão Limpar Filtros integrado à paleta de destaque */
 #btn-limpar {
     background-color: transparent;
-    color: var(--cor-texto-secundario);
-    border: 1px solid var(--cor-borda);
+    color: var(--cor-foco);
+    border: 1px solid var(--cor-foco);
     padding: var(--espaco-p) var(--espaco-m);
     border-radius: 4px;
     font-weight: bold;
-    transition: background-color 0.2s, color 0.2s;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
 }
 
 #btn-limpar:hover {
-    background-color: var(--cor-borda);
-    color: var(--cor-texto);
+    background-color: var(--cor-foco);
+    color: var(--cor-fundo);
+}
+
+#btn-limpar:active {
+    transform: scale(0.98);
 }
 
 /* Container principal */
