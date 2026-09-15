@@ -73,7 +73,7 @@ h2 {
 }
 
 /* Alvos de clique mínimos de 24x24px */
-button, input, label {
+button, input, select, label {
     min-height: 24px;
     min-width: 24px;
     cursor: pointer;
@@ -87,6 +87,12 @@ form {
     background-color: var(--cor-fundo-coluna);
     padding: var(--espaco-m);
     border-radius: var(--raio-borda);
+}
+
+form div {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espaco-p);
 }
 
 fieldset {
@@ -119,22 +125,36 @@ fieldset label {
     margin-bottom: 0;
 }
 
-input[type="search"] {
+input[type="search"], select {
     background-color: var(--cor-fundo-cartao);
     color: var(--cor-texto);
     border: 1px solid var(--cor-borda);
     padding: var(--espaco-p);
     border-radius: 4px;
+    font-size: 0.95rem;
 }
 
-button[type="submit"] {
-    background-color: var(--status-andamento);
-    color: #121212;
-    border: none;
+.acoes-formulario {
+    display: flex;
+    flex-direction: row;
+    gap: var(--espaco-m);
+    align-items: center;
+    margin-top: var(--espaco-p);
+}
+
+#btn-limpar {
+    background-color: transparent;
+    color: var(--cor-texto-secundario);
+    border: 1px solid var(--cor-borda);
     padding: var(--espaco-p) var(--espaco-m);
     border-radius: 4px;
     font-weight: bold;
-    align-self: flex-start;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+#btn-limpar:hover {
+    background-color: var(--cor-borda);
+    color: var(--cor-texto);
 }
 
 /* Container principal */
@@ -254,8 +274,7 @@ footer {
     color: var(--cor-texto-secundario);
 }
 
-/* Breakpoint: 768px
-   Justificativa: A partir desta largura, o conteúdo empilhado em uma única coluna deixa os cartões muito largos e a rolagem vertical excessivamente longa, dificultando a navegação. A quebra para 2 colunas resolve essa proporção sem gerar rolagem horizontal. */
+/* Breakpoint: 768px */
 @media (min-width: 768px) {
     section[aria-labelledby="titulo-quadro"] {
         grid-template-columns: repeat(2, 1fr);
@@ -267,24 +286,31 @@ footer {
         flex-wrap: wrap;
     }
     
-    form div {
-        flex-basis: 100%;
+    form > div {
+        flex: 1 1 calc(50% - var(--espaco-m));
     }
 
     fieldset {
-        flex: 1;
+        flex: 1 1 100%;
     }
     
-    button[type="submit"] {
-        align-self: center;
-        margin-top: 24px;
+    .acoes-formulario {
+        flex-basis: 100%;
+        justify-content: flex-end;
     }
 }
 
-/* Breakpoint: 1024px
-   Justificativa: Em telas mais largas, o grid de apenas 2 colunas faz com que o texto dos cartões fique esticado demais horizontalmente, "quebrando" a proporção visual do quadro. A quebra para 4 colunas organiza os status lado a lado aproveitando o espaço disponível. */
+/* Breakpoint: 1024px */
 @media (min-width: 1024px) {
     section[aria-labelledby="titulo-quadro"] {
         grid-template-columns: repeat(4, 1fr);
+    }
+
+    form > div {
+        flex: 1;
+    }
+
+    fieldset {
+        flex: 2;
     }
 }
