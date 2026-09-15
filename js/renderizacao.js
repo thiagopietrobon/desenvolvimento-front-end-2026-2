@@ -1,4 +1,4 @@
-// Cria os cartões
+// Cria a estrutura HTML do cartão da tarefa
 export function criarCartao(tarefa) {
     const cartao = document.createElement("article");
     cartao.className = "cartao";
@@ -41,12 +41,12 @@ export function criarCartao(tarefa) {
         pResponsavel,
         pPrioridade,
         pPrazo,
-        botaoDetalhes,
+        botaoDetalhes
     );
     return cartao;
 }
 
-//Filtra e distribui as tarefas nas listas de cada coluna do quadro.
+// Distribui os cartões nas colunas correspondentes no quadro
 export function renderizarTarefas(tarefas, quadro) {
     if (!quadro) return;
 
@@ -72,7 +72,7 @@ export function renderizarTarefas(tarefas, quadro) {
     });
 }
 
-//Instala um listener de evento delegado no quadro para os botões de detalhes.
+// Ouvinte de eventos delegado para interações dentro do quadro
 export function instalarEventosDoQuadro(quadro, obterTarefas) {
     if (!quadro) return;
 
@@ -86,8 +86,7 @@ export function instalarEventosDoQuadro(quadro, obterTarefas) {
         if (!cartao) return;
 
         const id = cartao.dataset.tarefaId;
-        const tarefas =
-            typeof obterTarefas === "function" ? obterTarefas() : obterTarefas;
+        const tarefas = typeof obterTarefas === "function" ? obterTarefas() : obterTarefas;
         const tarefa = Array.isArray(tarefas)
             ? tarefas.find((item) => item.id === id)
             : null;
