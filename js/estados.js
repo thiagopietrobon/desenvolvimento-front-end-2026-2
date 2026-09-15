@@ -1,66 +1,59 @@
 import { renderizarTarefas } from "./renderizacao.js";
 
-export function renderizarEstado(estado, dados) {
+export function renderizarEstado(estado, tarefasVisiveis = []) {
     const elStatus = document.querySelector("[data-estado]");
     const elQuadro = document.querySelector("[data-quadro]");
 
     if (!elStatus) return;
 
-    switch (estado) {
-        case "carregando":
-            elStatus.textContent =
-                "Carregando tarefas do servidor, por favor aguarde...";
-            if (elQuadro) {
-                renderizarTarefas([], elQuadro);
-            }
-            break;
-
-        case "sucesso": {
-            const tarefas = Array.isArray(dados) ? dados : [];
-            elStatus.textContent = `Tarefas carregadas com sucesso. Total: ${tarefas.length} tarefa(s) encontrada(s).`;
-            if (elQuadro) {
-                renderizarTarefas(tarefas, elQuadro);
-            }
-            break;
-        }
-
-        case "vazio":
-            elStatus.textContent =
-                "Nenhuma tarefa cadastrada no sistema no momento.";
-            if (elQuadro) {
-                renderizarTarefas([], elQuadro);
-            }
-            break;
-
-        case "erro": {
-            let mensagem = "Ocorreu uma falha ao carregar as tarefas.";
-
-            if (dados instanceof Error) {
-                if (dados.name === "TypeError") {
-                    mensagem =
-                        "Erro de rede: Não foi possível conectar ao servidor. Verifique sua conexão com a internet.";
-                } else if (dados.name === "SyntaxError") {
-                    mensagem =
-                        "Erro de formato: O documento de dados recebido é inválido (JSON malformatado).";
-                } else if (dados.name === "HttpError" || dados.status) {
-                    mensagem = `Erro de protocolo HTTP (${dados.status || "desconhecido"}): O recurso de dados não foi encontrado ou falhou.`;
-                } else {
-                    mensagem = `Erro: ${dados.message}`;
-                }
-            } else if (typeof dados === "string") {
-                mensagem = dados;
-            }
-
-            // Preenche a mensagem de erro no elemento de status via textContent
-            elStatus.textContent = mensagem;
-
-            if (elQuadro) {
-                renderizarTarefas([], elQuadro);
-            }
-            break;
-        }
-
-        default:
-            console.warn(`Estado não reconhecido: ${estado}`);
+    // 1. Estado de Carregamento
+    if (estado.carregamento) {
+        elStatus.textContent = "Carregando tarefas do servidor, por favor aguarde...";
+        if (elQuadro) renderizarTarefas([], elQuadro);
+        return;
     }
+
+    // 2. Estado de Erro
+    if (estado.erro) {
+        let mensagem = "Ocorreu uma falha ao carregar as tarefas.";
+        const erro = estado.erro;
+
+        if (erro instanceof Error) {
+            if (erro.name === "OfflineError" || erro.name === "NetworkError") {
+                mensagem = "Erro de rede: Não foi possível conectar ao servidor. Verifique sua conexão com a internet.";
+            } else if (erro.name === "SyntaxError") {
+                mensagem = "Erro de formato: O documento de dados recebido é inválido (JSON malformatado).";
+            } else if (erro.name === "HttpError" || erro.status) {
+                mensagem = `Erro de protocolo HTTP (${erro.status || "desconhecido"}): O recurso de dados não foi encontrado ou falhou.`;
+            } else {
+                mensagem = `Erro: ${erro.message}`;
+            }
+        } else if (typeof erro === "string") {
+            mensagem = erro;
+        }
+
+        elStatus.textContent = mensagem;
+        if (elQuadro) renderizarTarefas([], elQuadro);
+        return;
+    }
+
+    const totalOriginal = estado.tarefas.length;
+
+    // 3. Origem de Dados Vazia
+    if (totalOriginal === 0) {
+        elStatus.textContent = "Nenhuma tarefa cadastrada no sistema no momento.";
+        if (elQuadro) renderizarTarefas([], elQuadro);
+        return;
+    }
+
+    // 4. Resultado Vazio pelos Filtros Aplicados
+    if (tarefasVisiveis.length === 0) {
+        elStatus.textContent = `Nenhum resultado encontrado para os filtros aplicados (0 de ${totalOriginal} tarefas).`;
+        if (elQuadro) renderizarTarefas([], elQuadro);
+        return;
+    }
+
+    // 5. Sucesso com Exibição de Resultados
+    elStatus.textContent = `Exibindo ${tarefasVisiveis.length} de ${totalOriginal} tarefa(s).`;
+    if (elQuadro) renderizarTarefas(tarefasVisiveis, elQuadro);
 }
