@@ -2,40 +2,137 @@ import { carregarTarefas } from "./api.js";
 import { renderizarEstado } from "./estados.js";
 import { instalarEventosDoQuadro } from "./renderizacao.js";
 
-// Armazena a referência das tarefas atuais na memória da aplicação
-let tarefasAtuais = [];
+// ESTADO ÚNICO DA APLICAÇÃO
+const estado = {
+    tarefas: [],
+    busca: "",
+    status: "todos",
+    prioridade: "todas",
+    ordenacao: "prazo-asc",
+    carregamento: true,
+    erro: null
+};
 
 /**
- * Função assíncrona principal de inicialização da interface.
+ * Filtra e ordena as tarefas com base no estado atual
+ * sem alterar o array original e sem ler o DOM.
  */
+function obterTarefasDerivadas() {
+    const termoBusca = estado.busca.trim().toLowerCase();
+
+    const filtradas = estado.tarefas.filter((tarefa) => {
+        const atendeBusca = tarefa.titulo.toLowerCase().includes(termoBusca);
+        const atendeStatus = estado.status === "todos" || tarefa.status === estado.status;
+        const atendePrioridade = estado.prioridade === "todas" || tarefa.prioridade === estado.prioridade;
+
+        return atendeBusca && atendeStatus && atendePrioridade;
+    });
+
+    // Cópia imutável antes da ordenação para não modificar o estado.tarefas original
+    return [...filtradas].sort((a, b) => {
+        const dataA = new Date(a.prazo);
+        const dataB = new Date(b.prazo);
+        return estado.ordenacao === "prazo-asc" ? dataA - dataB : dataB - dataA;
+    });
+}
+
+/**
+ * Ponto Único de Renderização: Deriva a lista e atualiza a interface.
+ */
+function renderizar() {
+    const tarefasVisiveis = obterTarefasDerivadas();
+    renderizarEstado(estado, tarefasVisiveis);
+}
+
+/**
+ * Inicialização de eventos nos controles do formulário.
+ */
+function instalarEventosFiltros() {
+    const form = document.getElementById("form-filtros");
+    const campoBusca = document.getElementById("busca-titulo");
+    const selectOrdenacao = document.getElementById("ordenacao-prazo");
+    const btnLimpar = document.getElementById("btn-limpar");
+
+    if (!form) return;
+
+    // Evita o submit padrão da página
+    form.addEventListener("submit", (evento) => evento.preventDefault());
+
+    // Busca por título (Evento input para busca dinâmica)
+    if (campoBusca) {
+        campoBusca.addEventListener("input", (evento) => {
+            estado.busca = evento.target.value;
+            renderizar();
+        });
+    }
+
+    // Filtros por Status e Prioridade (Radios)
+    form.addEventListener("change", (evento) => {
+        const elemento = evento.target;
+
+        if (elemento.name === "status") {
+            estado.status = elemento.value;
+            renderizar();
+        } else if (elemento.name === "prioridade") {
+            estado.prioridade = elemento.value;
+            renderizar();
+        } else if (elemento.name === "ordenacao") {
+            estado.ordenacao = elemento.value;
+            renderizar();
+        }
+    });
+
+    // Botão Limpar Filtros
+    if (btnLimpar) {
+        btnLimpar.addEventListener("click", () => {
+            // 1. Reseta os valores do estado
+            estado.busca = "";
+            estado.status = "todos";
+            estado.prioridade = "todas";
+            estado.ordenacao = "prazo-asc";
+
+            // 2. Sincroniza os controles visuais no DOM
+            if (campoBusca) campoBusca.value = "";
+            if (selectOrdenacao) selectOrdenacao.value = "prazo-asc";
+
+            const radioStatusTodos = document.getElementById("status-todos");
+            if (radioStatusTodos) radioStatusTodos.checked = true;
+
+            const radioPrioridadeTodas = document.getElementById("prioridade-todas");
+            if (radioPrioridadeTodas) radioPrioridadeTodas.checked = true;
+
+            // 3. Re-renderiza a aplicação
+            renderizar();
+        });
+    }
+}
+
+// Inicialização principal.
 async function iniciarApp() {
     const quadro = document.querySelector("[data-quadro]");
 
     if (quadro) {
-        //Instala os ouvintes de eventos delegados no quadro uma única vez
-        instalarEventosDoQuadro(quadro, () => tarefasAtuais);
+        // Delegação de eventos no quadro instalada uma única vez
+        instalarEventosDoQuadro(quadro, () => obterTarefasDerivadas());
     }
 
-    //Aplica o estado de carregando ANTES da requisição
-    renderizarEstado("carregando");
+    instalarEventosFiltros();
+
+    // Estado inicial de carregamento
+    estado.carregamento = true;
+    estado.erro = null;
+    renderizar();
 
     try {
-        //Busca os dados via fetch em api.js
         const tarefas = await carregarTarefas();
-        tarefasAtuais = tarefas;
-
-        //Aplica o estado adequado com base no resultado da busca
-        if (tarefas.length === 0) {
-            renderizarEstado("vazio");
-        } else {
-            renderizarEstado("sucesso", tarefas);
-        }
+        estado.tarefas = tarefas;
     } catch (erro) {
-        //Captura falhas de rede, protocolo ou formato e aciona o estado de erro
-        renderizarEstado("erro", erro);
-        console.error("Falha na execução de carregarTarefas:", erro);
+        estado.erro = erro;
+    } finally {
+        estado.carregamento = false;
+        renderizar();
     }
 }
 
-// Inicializa a aplicação
+// Inicia a aplicação
 iniciarApp();
