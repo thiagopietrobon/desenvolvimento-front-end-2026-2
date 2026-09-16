@@ -4,6 +4,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="styles.css">
+        <link rel="stylesheet" href="modal.css">
         <title>Gerenciador de Tarefas</title>
         <script type="module" src="js/app.js"></script>
     </head>
@@ -11,20 +12,15 @@
         <header>
             <h1>Gerenciador de Tarefas Acadêmicas</h1>
         </header>
-
         <main>
-            <!-- Busca e Filtros -->
             <section aria-labelledby="titulo-filtros">
                 <h2 id="titulo-filtros">Busca e Filtros</h2>
                 <form id="form-filtros" action="#" method="GET">
-                    
-                    <!-- Linha Superior: Busca (Topo Esquerdo), Ordenação e Limpar Filtros -->
                     <div class="linha-controles-topo">
                         <div class="campo-busca">
                             <label for="busca-titulo">Buscar por título da tarefa:</label>
                             <input type="search" id="busca-titulo" name="busca" placeholder="Digite para buscar...">
                         </div>
-
                         <div class="campo-ordenacao">
                             <label for="ordenacao-prazo">Ordenar por Prazo:</label>
                             <select id="ordenacao-prazo" name="ordenacao">
@@ -32,108 +28,41 @@
                                 <option value="prazo-desc">Mais distantes primeiro</option>
                             </select>
                         </div>
-
                         <div class="acoes-formulario">
                             <button type="button" id="btn-limpar">Limpar Filtros</button>
                         </div>
                     </div>
-
-                    <!-- Linha Inferior: Radios de Status e Prioridade -->
                     <div class="linha-filtros-radios">
                         <fieldset>
                             <legend>Filtrar por Status</legend>
-                            
-                            <div class="item-radio">
-                                <input type="radio" id="status-todos" name="status" value="todos" checked>
-                                <label for="status-todos">Todos</label>
-                            </div>
-
-                            <div class="item-radio">
-                                <input type="radio" id="status-fazer" name="status" value="a-fazer">
-                                <label for="status-fazer">A Fazer</label>
-                            </div>
-
-                            <div class="item-radio">
-                                <input type="radio" id="status-andamento" name="status" value="em-andamento">
-                                <label for="status-andamento">Em Andamento</label>
-                            </div>
-
-                            <div class="item-radio">
-                                <input type="radio" id="status-revisao" name="status" value="em-revisao">
-                                <label for="status-revisao">Em Revisão</label>
-                            </div>
-
-                            <div class="item-radio">
-                                <input type="radio" id="status-concluida" name="status" value="concluida">
-                                <label for="status-concluida">Concluída</label>
-                            </div>
+                            <div class="item-radio"><input type="radio" id="status-todos" name="status" value="todos" checked><label for="status-todos">Todos</label></div>
+                            <div class="item-radio"><input type="radio" id="status-fazer" name="status" value="a-fazer"><label for="status-fazer">A Fazer</label></div>
+                            <div class="item-radio"><input type="radio" id="status-andamento" name="status" value="em-andamento"><label for="status-andamento">Em Andamento</label></div>
+                            <div class="item-radio"><input type="radio" id="status-revisao" name="status" value="em-revisao"><label for="status-revisao">Em Revisão</label></div>
+                            <div class="item-radio"><input type="radio" id="status-concluida" name="status" value="concluida"><label for="status-concluida">Concluída</label></div>
                         </fieldset>
-
                         <fieldset>
                             <legend>Filtrar por Prioridade</legend>
-                            
-                            <div class="item-radio">
-                                <input type="radio" id="prioridade-todas" name="prioridade" value="todas" checked>
-                                <label for="prioridade-todas">Todas</label>
-                            </div>
-
-                            <div class="item-radio">
-                                <input type="radio" id="prioridade-baixa" name="prioridade" value="Baixa">
-                                <label for="prioridade-baixa">Baixa</label>
-                            </div>
-
-                            <div class="item-radio">
-                                <input type="radio" id="prioridade-media" name="prioridade" value="Média">
-                                <label for="prioridade-media">Média</label>
-                            </div>
-
-                            <div class="item-radio">
-                                <input type="radio" id="prioridade-alta" name="prioridade" value="Alta">
-                                <label for="prioridade-alta">Alta</label>
-                            </div>
+                            <div class="item-radio"><input type="radio" id="prioridade-todas" name="prioridade" value="todas" checked><label for="prioridade-todas">Todas</label></div>
+                            <div class="item-radio"><input type="radio" id="prioridade-baixa" name="prioridade" value="Baixa"><label for="prioridade-baixa">Baixa</label></div>
+                            <div class="item-radio"><input type="radio" id="prioridade-media" name="prioridade" value="Média"><label for="prioridade-media">Média</label></div>
+                            <div class="item-radio"><input type="radio" id="prioridade-alta" name="prioridade" value="Alta"><label for="prioridade-alta">Alta</label></div>
                         </fieldset>
                     </div>
-
                 </form>
             </section>
-
-            <!-- Visão de Quadro -->
             <section aria-labelledby="titulo-quadro" data-quadro>
                 <h2 id="titulo-quadro">Quadro de Projetos</h2>
-
                 <p data-estado role="status" aria-live="polite"></p>
-
-                <!-- A Fazer -->
-                <section aria-labelledby="quadro-a-fazer">
-                    <h3 id="quadro-a-fazer">A Fazer</h3>
-                    <ul data-lista-status="a-fazer"></ul>
-                </section>
-
-                <!-- Em Andamento -->
-                <section aria-labelledby="quadro-em-andamento">
-                    <h3 id="quadro-em-andamento">Em Andamento</h3>
-                    <ul data-lista-status="em-andamento"></ul>
-                </section>
-
-                <!-- Revisão -->
-                <section aria-labelledby="quadro-em-revisao">
-                    <h3 id="quadro-em-revisao">Em Revisão</h3>
-                    <ul data-lista-status="em-revisao"></ul>
-                </section>
-
-                <!-- Concluída -->
-                <section aria-labelledby="quadro-concluida">
-                    <h3 id="quadro-concluida">Concluída</h3>
-                    <ul data-lista-status="concluida"></ul>
-                </section>
-
+                <section aria-labelledby="quadro-a-fazer"><h3 id="quadro-a-fazer">A Fazer</h3><ul data-lista-status="a-fazer"></ul></section>
+                <section aria-labelledby="quadro-em-andamento"><h3 id="quadro-em-andamento">Em Andamento</h3><ul data-lista-status="em-andamento"></ul></section>
+                <section aria-labelledby="quadro-em-revisao"><h3 id="quadro-em-revisao">Em Revisão</h3><ul data-lista-status="em-revisao"></ul></section>
+                <section aria-labelledby="quadro-concluida"><h3 id="quadro-concluida">Concluída</h3><ul data-lista-status="concluida"></ul></section>
             </section>
         </main>
-
         <footer>
             <p>Desenvolvido por: <strong>Thiago Henrique B. Pietrobon</strong></p>
             <p>Disciplina: <strong>Desenvolvimento Front-End</strong></p>
         </footer>
-
     </body>
 </html>
