@@ -1,65 +1,93 @@
-// Cria a estrutura HTML do cartão da tarefa
+const ROTULOS_STATUS = {
+    "a-fazer": "A Fazer",
+    "em-andamento": "Em Andamento",
+    "em-revisao": "Em Revisão",
+    "concluida": "Concluída",
+};
+
+function criarLinhaMeta(rotulo, valor, classe = "") {
+    const linha = document.createElement("p");
+    if (classe) linha.className = classe;
+    const rotuloEl = document.createElement("strong");
+    rotuloEl.textContent = `${rotulo}: `;
+    const valorEl = document.createElement("span");
+    valorEl.textContent = valor;
+    linha.append(rotuloEl, valorEl);
+    return linha;
+}
+
+// Cria a estrutura visual do cartão sem modificar os dados da tarefa.
 export function criarCartao(tarefa) {
     const cartao = document.createElement("article");
-    cartao.className = "cartao";
+    cartao.className = `cartao cartao--${tarefa.status}`;
     cartao.dataset.tarefaId = tarefa.id;
+
+    const topo = document.createElement("div");
+    topo.className = "cartao-topo";
+    const status = document.createElement("span");
+    status.className = `badge-status badge-status--${tarefa.status}`;
+    status.textContent = ROTULOS_STATUS[tarefa.status] || tarefa.status;
+    topo.append(status);
 
     const titulo = document.createElement("h4");
     titulo.textContent = tarefa.titulo;
 
-    const pProjeto = document.createElement("p");
-    const strongProjeto = document.createElement("strong");
-    strongProjeto.textContent = "Projeto: ";
-    pProjeto.append(strongProjeto, tarefa.projeto || "Geral");
+    const prioridade = document.createElement("span");
+    const prioridadeClasse = String(tarefa.prioridade || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    prioridade.className = `badge-prioridade badge-prioridade--${prioridadeClasse}`;
+    prioridade.textContent = `⚑ ${tarefa.prioridade || "Sem prioridade"}`;
 
-    const pResponsavel = document.createElement("p");
-    const strongResp = document.createElement("strong");
-    strongResp.textContent = "Responsável: ";
-    pResponsavel.append(strongResp, tarefa.responsavel || "Não atribuído");
-
-    const pPrioridade = document.createElement("p");
-    const strongPrio = document.createElement("strong");
-    strongPrio.textContent = "Prioridade: ";
-    pPrioridade.append(strongPrio, tarefa.prioridade);
-
-    const pPrazo = document.createElement("p");
-    const strongPrazo = document.createElement("strong");
-    strongPrazo.textContent = "Prazo: ";
-    pPrazo.append(strongPrazo, tarefa.prazo);
+    const prazo = document.createElement("p");
+    prazo.className = "cartao-prazo";
+    const prazoLabel = document.createElement("strong");
+    prazoLabel.textContent = "▦ Prazo: ";
+    const prazoValor = document.createElement("span");
+    prazoValor.textContent = tarefa.prazo || "Não definido";
+    prazo.append(prazoLabel, prazoValor);
 
     const botaoDetalhes = document.createElement("button");
     botaoDetalhes.type = "button";
     botaoDetalhes.dataset.acao = "ver-detalhes";
-
-    const spanBotao = document.createElement("span");
-    spanBotao.textContent = "Ver Detalhes";
-    botaoDetalhes.append(spanBotao);
+    botaoDetalhes.textContent = "Ver detalhes →";
 
     cartao.append(
+        topo,
         titulo,
-        pProjeto,
-        pResponsavel,
-        pPrioridade,
-        pPrazo,
-        botaoDetalhes
+        criarLinhaMeta("Projeto", tarefa.projeto || "Geral"),
+        criarLinhaMeta("Responsável", tarefa.responsavel || "Não atribuído"),
+        prioridade,
+        prazo,
+        botaoDetalhes,
     );
     return cartao;
 }
 
-// Distribui os cartões nas colunas correspondentes no quadro
+// Atualiza os cartões e a contagem de cada etapa do quadro.
 export function renderizarTarefas(tarefas, quadro) {
     if (!quadro) return;
 
     const listas = quadro.querySelectorAll("[data-lista-status]");
-
     listas.forEach((lista) => {
         const statusColuna = lista.dataset.listaStatus;
         const tarefasColuna = tarefas.filter((t) => t.status === statusColuna);
+        const secao = lista.closest('section[aria-labelledby^="quadro-"]');
+        const titulo = secao?.querySelector("h3");
+
+        if (titulo) {
+            let contador = titulo.querySelector(".contador-coluna");
+            if (!contador) {
+                contador = document.createElement("span");
+                contador.className = "contador-coluna";
+                contador.setAttribute("aria-label", "Quantidade de tarefas");
+                titulo.append(contador);
+            }
+            contador.textContent = String(tarefasColuna.length);
+        }
 
         if (tarefasColuna.length === 0) {
             const itemVazio = document.createElement("li");
             itemVazio.className = "coluna-vazia";
-            itemVazio.textContent = "Nenhuma tarefa nesta coluna.";
+            itemVazio.textContent = "✨ Tudo tranquilo por aqui";
             lista.replaceChildren(itemVazio);
         } else {
             const cartoes = tarefasColuna.map((t) => {
@@ -72,7 +100,7 @@ export function renderizarTarefas(tarefas, quadro) {
     });
 }
 
-// Ouvinte de eventos delegado para interações dentro do quadro
+// Ouvinte delegado para abrir os detalhes da tarefa selecionada.
 export function instalarEventosDoQuadro(quadro, obterTarefas) {
     if (!quadro) return;
 
