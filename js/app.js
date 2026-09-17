@@ -2,6 +2,7 @@ import { carregarTarefas } from "./api.js";
 import { renderizarEstado } from "./estados.js";
 import { instalarEventosDoQuadro } from "./renderizacao.js";
 
+const CHAVE_TAREFAS = "gerenciador-academico-tarefas";
 const estado = { tarefas: [], busca: "", status: "todos", prioridade: "todas", ordenacao: "prazo-asc", carregamento: true, erro: null };
 
 function obterTarefasDerivadas() {
@@ -23,10 +24,33 @@ function renderizar() {
     renderizarEstado(estado, obterTarefasDerivadas());
 }
 
+function persistirTarefas() {
+    try {
+        localStorage.setItem(CHAVE_TAREFAS, JSON.stringify(estado.tarefas));
+        return true;
+    } catch (erro) {
+        console.error("Não foi possível salvar as tarefas neste navegador.", erro);
+        return false;
+    }
+}
+
+function obterTarefasSalvas() {
+    try {
+        const tarefasSalvas = localStorage.getItem(CHAVE_TAREFAS);
+        if (!tarefasSalvas) return null;
+        const tarefas = JSON.parse(tarefasSalvas);
+        return Array.isArray(tarefas) ? tarefas : null;
+    } catch (erro) {
+        console.error("Não foi possível recuperar as tarefas salvas.", erro);
+        return null;
+    }
+}
+
 function salvarTarefa(atualizada) {
     const indice = estado.tarefas.findIndex((tarefa) => String(tarefa.id) === String(atualizada.id));
     if (indice === -1) return;
     estado.tarefas[indice] = { ...estado.tarefas[indice], ...atualizada };
+    persistirTarefas();
     renderizar();
 }
 
@@ -63,9 +87,20 @@ async function iniciarApp() {
     if (quadro) instalarEventosDoQuadro(quadro, () => obterTarefasDerivadas(), salvarTarefa);
     instalarEventosFiltros();
     estado.carregamento = true; estado.erro = null; renderizar();
-    try { estado.tarefas = await carregarTarefas(); }
-    catch (erro) { estado.erro = erro; }
-    finally { estado.carregamento = false; renderizar(); }
+    try {
+        const tarefasOriginais = await carregarTarefas();
+        estado.tarefas = obterTarefasSalvas() ?? tarefasOriginais;
+    } catch (erro) {
+        estado.erro = erro;
+        const tarefasSalvas = obterTarefasSalvas();
+        if (tarefasSalvas) {
+            estado.tarefas = tarefasSalvas;
+            estado.erro = null;
+        }
+    } finally {
+        estado.carregamento = false;
+        renderizar();
+    }
 }
 
 iniciarApp();
