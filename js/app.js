@@ -4,6 +4,24 @@ import { instalarEventosDoQuadro } from "./renderizacao.js";
 
 const CHAVE_TAREFAS = "gerenciador-academico-tarefas";
 const estado = { tarefas: [], busca: "", status: "todos", prioridade: "todas", ordenacao: "prazo-asc", carregamento: true, erro: null };
+let temporizadorAviso;
+
+function mostrarAviso(mensagem, tipo = "sucesso") {
+    let aviso = document.getElementById("aviso-acoes");
+    if (!aviso) {
+        aviso = document.createElement("div");
+        aviso.id = "aviso-acoes";
+        aviso.setAttribute("role", "status");
+        aviso.setAttribute("aria-live", "polite");
+        Object.assign(aviso.style, { position: "fixed", right: "20px", bottom: "20px", zIndex: "10000", maxWidth: "min(420px, calc(100vw - 40px))", padding: "14px 18px", borderRadius: "12px", boxShadow: "0 8px 28px rgba(20, 30, 60, .18)", fontWeight: "700", background: "#ffffff", color: "#20243a", border: "1px solid #dfe4ef" });
+        document.body.append(aviso);
+    }
+    aviso.textContent = mensagem;
+    aviso.style.borderLeft = tipo === "erro" ? "4px solid #d94b5b" : "4px solid #27966f";
+    aviso.hidden = false;
+    clearTimeout(temporizadorAviso);
+    temporizadorAviso = setTimeout(() => { aviso.hidden = true; }, 3500);
+}
 
 function obterTarefasDerivadas() {
     const termoBusca = estado.busca.trim().toLowerCase();
@@ -40,14 +58,18 @@ function salvarTarefa(atualizada) {
     const indice = estado.tarefas.findIndex((tarefa) => String(tarefa.id) === String(atualizada.id));
     if (indice === -1) return;
     estado.tarefas[indice] = { ...estado.tarefas[indice], ...atualizada };
-    persistirTarefas();
+    const persistiu = persistirTarefas();
     renderizar();
+    mostrarAviso(persistiu ? "Alterações salvas." : "Alterações aplicadas, mas não foi possível salvá-las neste navegador.", persistiu ? "sucesso" : "erro");
 }
 
 function excluirTarefa(id) {
+    const quantidadeAntes = estado.tarefas.length;
     estado.tarefas = estado.tarefas.filter((tarefa) => String(tarefa.id) !== String(id));
-    persistirTarefas();
+    if (estado.tarefas.length === quantidadeAntes) return;
+    const persistiu = persistirTarefas();
     renderizar();
+    mostrarAviso(persistiu ? "Tarefa excluída." : "Tarefa removida da tela, mas não foi possível salvar a alteração.", persistiu ? "sucesso" : "erro");
 }
 
 function instalarEventosFiltros() {
