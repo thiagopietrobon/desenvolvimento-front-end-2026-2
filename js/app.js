@@ -20,18 +20,11 @@ function obterTarefasDerivadas() {
     });
 }
 
-function renderizar() {
-    renderizarEstado(estado, obterTarefasDerivadas());
-}
+function renderizar() { renderizarEstado(estado, obterTarefasDerivadas()); }
 
 function persistirTarefas() {
-    try {
-        localStorage.setItem(CHAVE_TAREFAS, JSON.stringify(estado.tarefas));
-        return true;
-    } catch (erro) {
-        console.error("Não foi possível salvar as tarefas neste navegador.", erro);
-        return false;
-    }
+    try { localStorage.setItem(CHAVE_TAREFAS, JSON.stringify(estado.tarefas)); return true; }
+    catch (erro) { console.error("Não foi possível salvar as tarefas neste navegador.", erro); return false; }
 }
 
 function obterTarefasSalvas() {
@@ -40,16 +33,19 @@ function obterTarefasSalvas() {
         if (!tarefasSalvas) return null;
         const tarefas = JSON.parse(tarefasSalvas);
         return Array.isArray(tarefas) ? tarefas : null;
-    } catch (erro) {
-        console.error("Não foi possível recuperar as tarefas salvas.", erro);
-        return null;
-    }
+    } catch (erro) { console.error("Não foi possível recuperar as tarefas salvas.", erro); return null; }
 }
 
 function salvarTarefa(atualizada) {
     const indice = estado.tarefas.findIndex((tarefa) => String(tarefa.id) === String(atualizada.id));
     if (indice === -1) return;
     estado.tarefas[indice] = { ...estado.tarefas[indice], ...atualizada };
+    persistirTarefas();
+    renderizar();
+}
+
+function excluirTarefa(id) {
+    estado.tarefas = estado.tarefas.filter((tarefa) => String(tarefa.id) !== String(id));
     persistirTarefas();
     renderizar();
 }
@@ -84,7 +80,7 @@ function instalarEventosFiltros() {
 
 async function iniciarApp() {
     const quadro = document.querySelector("[data-quadro]");
-    if (quadro) instalarEventosDoQuadro(quadro, () => obterTarefasDerivadas(), salvarTarefa);
+    if (quadro) instalarEventosDoQuadro(quadro, () => obterTarefasDerivadas(), salvarTarefa, excluirTarefa);
     instalarEventosFiltros();
     estado.carregamento = true; estado.erro = null; renderizar();
     try {
@@ -93,14 +89,8 @@ async function iniciarApp() {
     } catch (erro) {
         estado.erro = erro;
         const tarefasSalvas = obterTarefasSalvas();
-        if (tarefasSalvas) {
-            estado.tarefas = tarefasSalvas;
-            estado.erro = null;
-        }
-    } finally {
-        estado.carregamento = false;
-        renderizar();
-    }
+        if (tarefasSalvas) { estado.tarefas = tarefasSalvas; estado.erro = null; }
+    } finally { estado.carregamento = false; renderizar(); }
 }
 
 iniciarApp();
