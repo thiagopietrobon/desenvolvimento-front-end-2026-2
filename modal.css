@@ -10,6 +10,7 @@ dialog[aria-labelledby] {
   border: 1px solid var(--border, #e5e8f1);
   border-radius: 20px;
   box-shadow: 0 24px 80px rgba(24, 30, 65, .24);
+  overscroll-behavior: contain;
 }
 dialog[aria-labelledby]::backdrop {
   background: rgba(25, 30, 58, .48);
@@ -25,20 +26,38 @@ dialog[aria-labelledby] h3 {
 dialog[aria-labelledby] h2 { font-size: 1.35rem; line-height: 1.3; }
 dialog[aria-labelledby] p { margin: 10px 0; color: var(--muted, #737b91); overflow-wrap: anywhere; }
 dialog[aria-labelledby] strong { color: var(--text, #20243a); }
+dialog[aria-labelledby] input,
+dialog[aria-labelledby] select { box-sizing: border-box; max-width: 100%; }
 dialog[aria-labelledby] button {
-  min-height: 40px;
+  min-height: 44px;
   padding: 9px 15px;
   border: 1px solid var(--border, #e5e8f1);
   border-radius: 10px;
   background: #fff;
   color: var(--text, #20243a);
+  font: inherit;
   font-weight: 700;
+  cursor: pointer;
 }
 dialog[aria-labelledby] button:hover { background: #f2f3ff; }
-dialog[aria-labelledby] button:focus-visible { outline: 3px solid var(--focus, #6571e8); outline-offset: 3px; }
+dialog[aria-labelledby] button:focus-visible,
+dialog[aria-labelledby] input:focus-visible,
+dialog[aria-labelledby] select:focus-visible {
+  outline: 3px solid var(--focus, #6571e8);
+  outline-offset: 3px;
+}
+.modal-tarefa-form { display: grid; gap: 16px; }
+.modal-tarefa-campo { display: grid; gap: 7px; min-width: 0; font-weight: 700; }
+.modal-tarefa-campo input,
+.modal-tarefa-campo select { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--border, #e5e8f1); border-radius: 10px; background: #fff; color: var(--text, #20243a); font: inherit; }
+.modal-tarefa-acoes { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; padding-top: 16px; border-top: 1px solid var(--border, #e5e8f1); }
+.modal-tarefa-acoes .botao-excluir-tarefa { margin-right: auto; color: #b42335; border-color: #f0b9c1; }
 @media (max-width: 520px) {
-  dialog[aria-labelledby] { width: calc(100% - 20px); max-height: 90vh; border-radius: 16px; }
+  dialog[aria-labelledby] { width: calc(100% - 20px); max-height: 90dvh; max-height: 90vh; border-radius: 16px; }
   dialog[aria-labelledby] > :first-child { padding: 20px; }
+  .modal-tarefa-acoes { display: grid; grid-template-columns: 1fr 1fr; }
+  .modal-tarefa-acoes button { width: 100%; }
+  .modal-tarefa-acoes .botao-excluir-tarefa { grid-column: 1 / -1; grid-row: 1; margin: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
   dialog[aria-labelledby] *, dialog[aria-labelledby] *::before, dialog[aria-labelledby] *::after { transition-duration: .01ms !important; }
