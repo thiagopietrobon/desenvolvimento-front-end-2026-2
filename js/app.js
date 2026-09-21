@@ -24,10 +24,7 @@ const estado = {
 
 let temporizadorAviso;
 
-/* --------------------------------------------------
-   AVISOS
--------------------------------------------------- */
-
+// Exibe avisos de sucesso ou erro.
 function mostrarAviso(mensagem, tipo = "sucesso") {
     let aviso = document.getElementById("aviso-acoes");
 
@@ -56,7 +53,6 @@ function mostrarAviso(mensagem, tipo = "sucesso") {
     }
 
     aviso.textContent = mensagem;
-
     aviso.style.borderLeft =
         tipo === "erro"
             ? "4px solid #d94b5b"
@@ -71,36 +67,23 @@ function mostrarAviso(mensagem, tipo = "sucesso") {
     }, 3500);
 }
 
-/* --------------------------------------------------
-   ORDENAÇÃO E FILTROS
--------------------------------------------------- */
-
-function converterPrazoParaNumero(prazo) {
-    if (typeof prazo !== "string") {
+// Converte o prazo para um valor comparável.
+// Datas inválidas ficam no final, independentemente da ordenação.
+function obterValorPrazo(prazo) {
+    if (typeof prazo !== "string" || !prazo.trim()) {
         return null;
     }
 
-    // Aceita somente o formato AAAA-MM-DD.
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(prazo)) {
-        return null;
-    }
+    const data = new Date(`${prazo}T00:00:00`);
 
-    const [ano, mes, dia] = prazo.split("-").map(Number);
-
-    const data = new Date(Date.UTC(ano, mes - 1, dia));
-
-    // Impede datas inexistentes, como 2026-02-31.
-    if (
-        data.getUTCFullYear() !== ano ||
-        data.getUTCMonth() !== mes - 1 ||
-        data.getUTCDate() !== dia
-    ) {
+    if (Number.isNaN(data.getTime())) {
         return null;
     }
 
     return data.getTime();
 }
 
+// Aplica busca, filtros e ordenação.
 function obterTarefasDerivadas() {
     const termo = estado.busca
         .trim()
@@ -127,44 +110,32 @@ function obterTarefasDerivadas() {
         );
     });
 
-    return filtradas
-        .map((tarefa, indiceOriginal) => ({
-            tarefa,
-            indiceOriginal,
-            prazo: converterPrazoParaNumero(tarefa.prazo)
-        }))
-        .sort((a, b) => {
-            // Tarefas sem prazo ficam sempre no final.
-            if (a.prazo === null && b.prazo !== null) {
-                return 1;
-            }
+    return [...filtradas].sort((a, b) => {
+        const prazoA = obterValorPrazo(a.prazo);
+        const prazoB = obterValorPrazo(b.prazo);
 
-            if (a.prazo !== null && b.prazo === null) {
-                return -1;
-            }
+        // Tarefas sem prazo válido ficam sempre no final.
+        if (prazoA === null && prazoB === null) {
+            return 0;
+        }
 
-            // Se ambas não possuem prazo, mantém a ordem original.
-            if (a.prazo === null && b.prazo === null) {
-                return a.indiceOriginal - b.indiceOriginal;
-            }
+        if (prazoA === null) {
+            return 1;
+        }
 
-            const diferenca = a.prazo - b.prazo;
+        if (prazoB === null) {
+            return -1;
+        }
 
-            if (diferenca === 0) {
-                return a.indiceOriginal - b.indiceOriginal;
-            }
+        if (estado.ordenacao === "prazo-desc") {
+            return prazoB - prazoA;
+        }
 
-            return estado.ordenacao === "prazo-desc"
-                ? -diferenca
-                : diferenca;
-        })
-        .map((item) => item.tarefa);
+        return prazoA - prazoB;
+    });
 }
 
-/* --------------------------------------------------
-   PROGRESSO
--------------------------------------------------- */
-
+// Atualiza a barra de progresso e os indicadores das etapas.
 function atualizarProgresso(tarefasVisiveis) {
     const total = estado.tarefas.length;
 
@@ -195,23 +166,29 @@ function atualizarProgresso(tarefasVisiveis) {
     if (resumo) {
         resumo.textContent =
             `${concluidas} de ${total} ` +
-            `${total === 1 ? "tarefa concluída" : "tarefas concluídas"}`;
+            (total === 1
+                ? "tarefa concluída"
+                : "tarefas concluídas");
     }
 
     if (barra) {
-        barra.setAttribute("aria-valuenow", String(percentual));
+        barra.setAttribute(
+            "aria-valuenow",
+            String(percentual)
+        );
     }
 
     if (preenchimento) {
         preenchimento.style.width = `${percentual}%`;
     }
 
-    const filtrosAtivos =
+    const existemFiltros =
         estado.status !== "todos" ||
         estado.prioridade !== "todas" ||
         estado.busca.trim() !== "";
 
-    document.querySelectorAll("[data-progresso-status]")
+    document
+        .querySelectorAll("[data-progresso-status]")
         .forEach((elemento) => {
             const status = elemento.dataset.progressoStatus;
 
@@ -219,21 +196,14 @@ function atualizarProgresso(tarefasVisiveis) {
                 (tarefa) => tarefa.status === status
             ).length;
 
-            const complemento = filtrosAtivos
-                ? " visíveis"
-                : "";
-
             elemento.textContent =
                 `${quantidade} ` +
-                `${quantidade === 1 ? "tarefa" : "tarefas"}` +
-                complemento;
+                (quantidade === 1 ? "tarefa" : "tarefas") +
+                (existemFiltros ? " visíveis" : "");
         });
 }
 
-/* --------------------------------------------------
-   FILTROS ATIVOS
--------------------------------------------------- */
-
+// Atualiza os chips que representam os filtros ativos.
 function atualizarChips() {
     const area = document.getElementById("filtros-ativos");
 
@@ -255,7 +225,9 @@ function atualizarChips() {
     if (estado.status !== "todos") {
         filtros.push([
             "status",
-            `Status: ${STATUS_LABELS[estado.status] || estado.status}`
+            `Status: ${
+                STATUS_LABELS[estado.status] || estado.status
+            }`
         ]);
     }
 
@@ -276,7 +248,6 @@ function atualizarChips() {
         const botao = document.createElement("button");
         botao.type = "button";
         botao.textContent = "×";
-
         botao.setAttribute(
             "aria-label",
             `Remover filtro ${texto}`
@@ -297,22 +268,22 @@ function atualizarChips() {
             if (tipo === "status") {
                 estado.status = "todos";
 
-                const statusTodos =
+                const todos =
                     document.getElementById("status-todos");
 
-                if (statusTodos) {
-                    statusTodos.checked = true;
+                if (todos) {
+                    todos.checked = true;
                 }
             }
 
             if (tipo === "prioridade") {
                 estado.prioridade = "todas";
 
-                const prioridadeTodas =
+                const todas =
                     document.getElementById("prioridade-todas");
 
-                if (prioridadeTodas) {
-                    prioridadeTodas.checked = true;
+                if (todas) {
+                    todas.checked = true;
                 }
             }
 
@@ -324,10 +295,7 @@ function atualizarChips() {
     });
 }
 
-/* --------------------------------------------------
-   RENDERIZAÇÃO
--------------------------------------------------- */
-
+// Atualiza toda a interface usando o estado atual.
 function renderizar() {
     const tarefasVisiveis = obterTarefasDerivadas();
 
@@ -336,46 +304,42 @@ function renderizar() {
     atualizarChips();
 }
 
-/* --------------------------------------------------
-   PERSISTÊNCIA
--------------------------------------------------- */
-
-function persistirTarefas(tarefas) {
+// Salva as tarefas no armazenamento local.
+function persistirTarefas() {
     try {
         localStorage.setItem(
             CHAVE_TAREFAS,
-            JSON.stringify(tarefas)
+            JSON.stringify(estado.tarefas)
         );
 
         return true;
     } catch (erro) {
-        console.error("Falha ao persistir tarefas:", erro);
+        console.error(
+            "Falha ao persistir tarefas:",
+            erro
+        );
+
         return false;
     }
 }
 
+// Recupera tarefas previamente salvas.
 function obterTarefasSalvas() {
     try {
-        const dadosBrutos = localStorage.getItem(CHAVE_TAREFAS);
+        const dados = localStorage.getItem(CHAVE_TAREFAS);
 
-        if (!dadosBrutos) {
+        if (!dados) {
             return null;
         }
 
-        const dados = JSON.parse(dadosBrutos);
+        const tarefas = JSON.parse(dados);
 
-        if (!Array.isArray(dados)) {
-            console.warn(
-                "Os dados salvos não estão no formato esperado."
-            );
-
-            return null;
-        }
-
-        return dados;
+        return Array.isArray(tarefas)
+            ? tarefas
+            : null;
     } catch (erro) {
         console.error(
-            "Falha ao recuperar tarefas salvas:",
+            "Falha ao recuperar tarefas:",
             erro
         );
 
@@ -383,102 +347,88 @@ function obterTarefasSalvas() {
     }
 }
 
+// Atualiza uma tarefa existente.
 function salvarTarefa(atualizada) {
     const indice = estado.tarefas.findIndex(
         (tarefa) =>
             String(tarefa.id) === String(atualizada.id)
     );
 
-    if (indice < 0) {
+    if (indice === -1) {
         mostrarAviso(
-            "Não foi possível localizar a tarefa.",
+            "Não foi possível encontrar essa tarefa.",
             "erro"
         );
 
-        return;
+        return false;
     }
 
-    const tarefasAtualizadas = [...estado.tarefas];
+    const tarefaAnterior = estado.tarefas[indice];
 
-    tarefasAtualizadas[indice] = {
-        ...tarefasAtualizadas[indice],
+    estado.tarefas[indice] = {
+        ...tarefaAnterior,
         ...atualizada
     };
 
-    // Primeiro tenta salvar; só depois atualiza o estado.
-    const salvou = persistirTarefas(tarefasAtualizadas);
-
-    if (!salvou) {
-        mostrarAviso(
-            "Não foi possível salvar as alterações neste navegador.",
-            "erro"
-        );
-
-        return;
-    }
-
-    estado.tarefas = tarefasAtualizadas;
+    const salvou = persistirTarefas();
 
     renderizar();
 
-    mostrarAviso("Alterações salvas neste navegador.");
-}
-
-function excluirTarefa(id) {
-    const tarefasAtualizadas = estado.tarefas.filter(
-        (tarefa) => String(tarefa.id) !== String(id)
+    mostrarAviso(
+        salvou
+            ? "Alterações salvas neste navegador."
+            : "Alterações aplicadas, mas não foi possível salvá-las neste navegador.",
+        salvou ? "sucesso" : "erro"
     );
 
-    if (tarefasAtualizadas.length === estado.tarefas.length) {
+    // A alteração foi aplicada em memória.
+    return true;
+}
+
+// Exclui uma tarefa existente.
+function excluirTarefa(id) {
+    const indice = estado.tarefas.findIndex(
+        (tarefa) => String(tarefa.id) === String(id)
+    );
+
+    if (indice === -1) {
         mostrarAviso(
-            "Não foi possível localizar a tarefa.",
+            "Não foi possível encontrar essa tarefa.",
             "erro"
         );
 
-        return;
+        return false;
     }
 
-    // Só remove do estado depois de confirmar a persistência.
-    const salvou = persistirTarefas(tarefasAtualizadas);
+    estado.tarefas.splice(indice, 1);
 
-    if (!salvou) {
-        mostrarAviso(
-            "Não foi possível excluir a tarefa: falha ao salvar.",
-            "erro"
-        );
-
-        return;
-    }
-
-    estado.tarefas = tarefasAtualizadas;
+    const salvou = persistirTarefas();
 
     renderizar();
 
-    mostrarAviso("Tarefa excluída.");
+    mostrarAviso(
+        salvou
+            ? "Tarefa excluída."
+            : "Tarefa removida da tela, mas não foi possível salvá-la neste navegador.",
+        salvou ? "sucesso" : "erro"
+    );
+
+    return true;
 }
 
-/* --------------------------------------------------
-   EVENTOS DOS FILTROS
--------------------------------------------------- */
-
+// Instala os eventos dos filtros.
 function instalarEventosFiltros() {
-    const formulario =
-        document.getElementById("form-filtros");
-
-    const busca =
-        document.getElementById("busca-titulo");
-
+    const form = document.getElementById("form-filtros");
+    const busca = document.getElementById("busca-titulo");
     const ordenacao =
         document.getElementById("ordenacao-prazo");
+    const limpar = document.getElementById("btn-limpar");
 
-    const limpar =
-        document.getElementById("btn-limpar");
-
-    if (!formulario) {
+    if (!form) {
         return;
     }
 
-    formulario.addEventListener("submit", (evento) => {
+    form.addEventListener("submit", (evento) => {
         evento.preventDefault();
     });
 
@@ -487,7 +437,7 @@ function instalarEventosFiltros() {
         renderizar();
     });
 
-    formulario.addEventListener("change", (evento) => {
+    form.addEventListener("change", (evento) => {
         const controle = evento.target;
 
         if (controle.name === "status") {
@@ -536,16 +486,13 @@ function instalarEventosFiltros() {
     });
 }
 
-/* --------------------------------------------------
-   NAVEGAÇÃO MOBILE
--------------------------------------------------- */
-
+// Instala a navegação lateral e as abas para celular.
 function instalarNavegacaoMobile() {
     const menu = document.getElementById("btn-menu");
     const sidebar = document.getElementById("sidebar");
     const sombra = document.getElementById("sidebar-sombra");
 
-    const fecharMenu = () => {
+    const fechar = () => {
         sidebar?.classList.remove("aberta");
         sombra?.classList.remove("visivel");
 
@@ -557,39 +504,36 @@ function instalarNavegacaoMobile() {
         menu?.setAttribute("aria-label", "Abrir menu");
     };
 
-    if (menu && sidebar) {
-        menu.addEventListener("click", () => {
-            const aberto = sidebar.classList.toggle("aberta");
+    menu?.addEventListener("click", () => {
+        if (!sidebar) {
+            return;
+        }
 
-            if (sombra) {
-                sombra.hidden = !aberto;
-                sombra.classList.toggle("visivel", aberto);
-            }
+        const aberto = sidebar.classList.toggle("aberta");
 
-            menu.setAttribute(
-                "aria-expanded",
-                String(aberto)
-            );
+        if (sombra) {
+            sombra.hidden = !aberto;
+            sombra.classList.toggle("visivel", aberto);
+        }
 
-            menu.setAttribute(
-                "aria-label",
-                aberto ? "Fechar menu" : "Abrir menu"
-            );
-        });
-    }
+        menu.setAttribute(
+            "aria-expanded",
+            String(aberto)
+        );
 
-    sombra?.addEventListener("click", fecharMenu);
+        menu.setAttribute(
+            "aria-label",
+            aberto ? "Fechar menu" : "Abrir menu"
+        );
+    });
+
+    sombra?.addEventListener("click", fechar);
 
     sidebar?.querySelectorAll("a").forEach((link) => {
-        link.addEventListener("click", fecharMenu);
+        link.addEventListener("click", fechar);
     });
 
-    document.addEventListener("keydown", (evento) => {
-        if (evento.key === "Escape") {
-            fecharMenu();
-        }
-    });
-
+    // Abas que alternam as colunas no celular.
     const abas = [
         ...document.querySelectorAll("[data-aba]")
     ];
@@ -598,7 +542,7 @@ function instalarNavegacaoMobile() {
         ...document.querySelectorAll("[data-coluna]")
     ];
 
-    function ativarAba(status) {
+    const ativarAba = (status) => {
         abas.forEach((aba) => {
             const ativa = aba.dataset.aba === status;
 
@@ -615,7 +559,7 @@ function instalarNavegacaoMobile() {
                 coluna.dataset.coluna === status
             );
         });
-    }
+    };
 
     abas.forEach((aba) => {
         aba.addEventListener("click", () => {
@@ -624,14 +568,11 @@ function instalarNavegacaoMobile() {
     });
 
     if (abas.length > 0) {
-        ativarAba("a-fazer");
+        ativarAba(abas[0].dataset.aba);
     }
 }
 
-/* --------------------------------------------------
-   INICIALIZAÇÃO
--------------------------------------------------- */
-
+// Inicializa o gerenciador.
 async function iniciarApp() {
     const quadro = document.querySelector("[data-quadro]");
 
@@ -652,16 +593,15 @@ async function iniciarApp() {
 
     try {
         const originais = await carregarTarefas();
-        const salvas = obterTarefasSalvas();
 
-        estado.tarefas = salvas ?? originais;
-        estado.erro = null;
+        estado.tarefas =
+            obterTarefasSalvas() ?? originais;
     } catch (erro) {
         estado.erro = erro;
 
         const salvas = obterTarefasSalvas();
 
-        if (salvas !== null) {
+        if (salvas) {
             estado.tarefas = salvas;
             estado.erro = null;
         }
