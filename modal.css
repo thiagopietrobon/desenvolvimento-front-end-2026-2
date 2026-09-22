@@ -1,578 +1,470 @@
-/* ============================= */
-/* MODAL DE TAREFA */
-/* ============================= */
+/* =========================================================
+   MODAL DE TAREFA
+   ========================================================= */
 
-dialog[aria-labelledby] {
-    width: min(
-        560px,
-        calc(100% - 28px)
-    );
+.modal-tarefa {
+    width: min(620px, calc(100vw - 32px));
+    max-width: 620px;
+    max-height: min(760px, calc(100vh - 32px));
 
-    max-width: 560px;
-
-    max-height:
-        min(
-            85vh,
-            760px
-        );
-
+    margin: auto;
     padding: 0;
 
-    overflow: auto;
+    border: 1px solid #dfe4ef;
+    border-radius: 18px;
 
-    color: var(--text, #20243a);
+    background: #ffffff;
+    color: #20243a;
 
-    background: var(
-        --surface,
-        #ffffff
-    );
+    box-shadow: 0 24px 70px rgba(35, 44, 85, 0.22);
 
-    border:
-        1px solid
-        var(
-            --border,
-            #e5e8f1
-        );
-
-    border-radius: 20px;
-
-    box-shadow:
-        0 24px 80px
-        rgba(24, 30, 65, .24);
-
-    overscroll-behavior: contain;
+    overflow: hidden;
 }
 
-
-dialog[aria-labelledby]::backdrop {
-    background:
-        rgba(
-            25,
-            30,
-            58,
-            .48
-        );
-
+.modal-tarefa::backdrop {
+    background: rgba(23, 31, 60, 0.42);
     backdrop-filter: blur(3px);
 }
 
+/* =========================================================
+   CONTEÚDO
+   ========================================================= */
 
-dialog[aria-labelledby]
-> :first-child {
-    padding: 24px;
+.modal-tarefa-conteudo {
+    display: flex;
+    flex-direction: column;
+    max-height: min(760px, calc(100vh - 32px));
 }
 
+/* =========================================================
+   TOPO
+   ========================================================= */
 
 .modal-tarefa-topo {
     display: flex;
-
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
+    gap: 20px;
 
-    gap: 16px;
+    padding: 22px 24px 18px;
 
-    margin-bottom: 20px;
+    border-bottom: 1px solid #e9edf5;
 }
 
-
-dialog[aria-labelledby] h2,
-dialog[aria-labelledby] h3 {
+.modal-tarefa-topo h2 {
     margin: 0;
 
-    font-family:
-        Nunito,
-        Inter,
-        sans-serif;
+    color: #252a46;
 
-    font-weight: 800;
-}
-
-
-dialog[aria-labelledby] h2 {
+    font-family: "Nunito", sans-serif;
     font-size: 1.35rem;
-    line-height: 1.3;
+    font-weight: 800;
+    line-height: 1.2;
 }
-
-
-dialog[aria-labelledby] p {
-    margin: 10px 0;
-
-    color:
-        var(
-            --muted,
-            #737b91
-        );
-
-    overflow-wrap: anywhere;
-}
-
-
-dialog[aria-labelledby] strong {
-    color:
-        var(
-            --text,
-            #20243a
-        );
-}
-
 
 .modal-tarefa-fechar {
-    flex: 0 0 auto;
+    flex-shrink: 0;
 
-    min-height: 40px !important;
+    min-width: 40px;
+    min-height: 40px;
 
-    padding: 8px 12px !important;
+    border: 1px solid #dfe4ef;
+    border-radius: 10px;
 
-    font-size: .78rem;
+    background: #f8f9fc;
+    color: #525a73;
+
+    font-size: 0.82rem;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background 160ms ease,
+        border-color 160ms ease,
+        color 160ms ease,
+        transform 160ms ease;
 }
 
+.modal-tarefa-fechar:hover {
+    border-color: #cbd2e3;
+    background: #f1f3f9;
+    color: #303650;
+}
+
+.modal-tarefa-fechar:active {
+    transform: scale(0.97);
+}
+
+/* =========================================================
+   CORPO
+   ========================================================= */
+
+.modal-tarefa-corpo {
+    overflow-y: auto;
+    padding: 22px 24px 24px;
+}
+
+/* =========================================================
+   FORMULÁRIO
+   ========================================================= */
 
 .modal-tarefa-form {
-    display: grid;
-
+    display: flex;
+    flex-direction: column;
     gap: 18px;
 }
 
-
 .modal-tarefa-campo {
-    display: grid;
-
+    display: flex;
+    flex-direction: column;
     gap: 7px;
 
-    min-width: 0;
+    margin: 0;
 
-    font-weight: 700;
-}
+    color: #414861;
 
-
-.modal-tarefa-campo > span {
-    color:
-        var(
-            --text,
-            #20243a
-        );
-
-    font-size: .78rem;
-
+    font-size: 0.82rem;
     font-weight: 750;
 }
 
-
-.modal-tarefa-campo input {
+.modal-tarefa-campo > input,
+.modal-tarefa-campo > select {
     width: 100%;
-
     min-height: 44px;
+
+    box-sizing: border-box;
 
     padding: 10px 12px;
 
-    border:
-        1px solid
-        var(
-            --border,
-            #e5e8f1
-        );
-
+    border: 1px solid #d9dfeb;
     border-radius: 10px;
 
-    background: #fff;
+    background: #ffffff;
+    color: #242941;
 
-    color:
-        var(
-            --text,
-            #20243a
-        );
-
-    font: inherit;
-}
-
-
-.modal-tarefa-campo input:focus {
-    border-color:
-        var(
-            --focus,
-            #6571e8
-        );
+    font-family: inherit;
+    font-size: 0.92rem;
 
     outline: none;
 
-    box-shadow:
-        0 0 0 3px
-        #6571e822;
+    transition:
+        border-color 160ms ease,
+        box-shadow 160ms ease,
+        background 160ms ease;
 }
 
+.modal-tarefa-campo > input:hover,
+.modal-tarefa-campo > select:hover {
+    border-color: #c4ccdd;
+}
 
-/* ============================= */
-/* CONTROLES SEGMENTADOS */
-/* ============================= */
+.modal-tarefa-campo > input:focus,
+.modal-tarefa-campo > select:focus {
+    border-color: #5964d8;
+    box-shadow: 0 0 0 3px rgba(89, 100, 216, 0.13);
+}
+
+/* =========================================================
+   CAMPOS DE DATA
+   ========================================================= */
+
+.modal-tarefa-campo input[type="date"] {
+    min-height: 46px;
+    cursor: pointer;
+}
+
+/* =========================================================
+   CONTROLES SEGMENTADOS
+   ========================================================= */
 
 .modal-tarefa-segmentado {
     min-width: 0;
 
-    margin: 0;
     padding: 0;
 
     border: 0;
-
-    background: transparent;
 }
-
 
 .modal-tarefa-segmentado legend {
-    padding: 0;
+    width: 100%;
 
-    margin-bottom: 8px;
+    margin-bottom: 7px;
 
-    color:
-        var(
-            --text,
-            #20243a
-        );
+    color: #414861;
 
-    font-size: .78rem;
-
+    font-size: 0.82rem;
     font-weight: 750;
 }
 
-
-.modal-segmentos {
+.grupo-segmentado {
     display: grid;
+    grid-template-columns: repeat(4, 1fr);
 
-    grid-template-columns:
-        repeat(
-            auto-fit,
-            minmax(
-                100px,
-                1fr
-            )
-        );
+    width: 100%;
 
-    gap: 7px;
+    border: 1px solid #d9dfeb;
+    border-radius: 11px;
+
+    background: #f8f9fc;
+
+    overflow: hidden;
 }
 
-
-.modal-segmento {
-    position: relative;
-
-    min-width: 0;
-
-    cursor: pointer;
+.modal-tarefa-segmentado:nth-of-type(3) .grupo-segmentado {
+    grid-template-columns: repeat(3, 1fr);
 }
 
-
-.modal-segmento input {
-    position: absolute;
-
-    width: 1px;
-    height: 1px;
-
-    opacity: 0;
-
-    pointer-events: none;
-}
-
-
-.modal-segmento span {
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    min-height: 42px;
-
-    padding: 8px 10px;
-
-    border:
-        1px solid
-        var(
-            --border,
-            #e5e8f1
-        );
-
-    border-radius: 9px;
-
-    background: #fff;
-
-    color: #687087;
-
-    text-align: center;
-
-    font-size: .74rem;
-
-    font-weight: 700;
-
-    transition:
-        background .18s,
-        border-color .18s,
-        color .18s,
-        box-shadow .18s;
-}
-
-
-.modal-segmento:hover span {
-    background: #f5f6ff;
-    border-color: #d8dcff;
-}
-
-
-.modal-segmento input:checked + span {
-    background: #eef0ff;
-
-    border-color:
-        var(
-            --brand,
-            #5865d8
-        );
-
-    color:
-        var(
-            --brand-dark,
-            #424fc0
-        );
-
-    box-shadow:
-        0 0 0 2px
-        #5865d81a;
-}
-
-
-.modal-segmento input:focus-visible + span {
-    outline:
-        3px solid
-        var(
-            --focus,
-            #6571e8
-        );
-
-    outline-offset: 2px;
-}
-
-
-/* ============================= */
-/* METADADOS */
-/* ============================= */
-
-.modal-tarefa-form > p {
-    margin: 0;
-
-    padding: 10px 12px;
-
-    border-radius: 9px;
-
-    background: #fafbff;
-
-    border:
-        1px solid
-        var(
-            --border,
-            #e5e8f1
-        );
-
-    font-size: .78rem;
-}
-
-
-.modal-tarefa-form > p strong {
-    font-weight: 750;
-}
-
-
-/* ============================= */
-/* BOTÕES */
-/* ============================= */
-
-dialog[aria-labelledby] button {
+.botao-segmentado {
     min-height: 44px;
 
-    padding: 9px 15px;
+    padding: 9px 10px;
 
-    border:
-        1px solid
-        var(
-            --border,
-            #e5e8f1
-        );
+    border: 0;
+    border-right: 1px solid #d9dfeb;
 
-    border-radius: 10px;
+    background: transparent;
+    color: #5a6279;
 
-    background: #fff;
-
-    color:
-        var(
-            --text,
-            #20243a
-        );
-
-    font: inherit;
-
-    font-weight: 700;
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 750;
 
     cursor: pointer;
+
+    transition:
+        background 160ms ease,
+        color 160ms ease,
+        box-shadow 160ms ease;
 }
 
-
-dialog[aria-labelledby] button:hover {
-    background: #f2f3ff;
+.botao-segmentado:last-child {
+    border-right: 0;
 }
 
-
-dialog[aria-labelledby]
-button:focus-visible {
-    outline:
-        3px solid
-        var(
-            --focus,
-            #6571e8
-        );
-
-    outline-offset: 3px;
+.botao-segmentado:hover {
+    background: #eef0fb;
+    color: #4149a8;
 }
 
+.botao-segmentado.ativo {
+    background: #5964d8;
+    color: #ffffff;
+
+    box-shadow: inset 0 0 0 1px #5964d8;
+}
+
+.botao-segmentado:focus-visible {
+    position: relative;
+    z-index: 2;
+
+    outline: 3px solid rgba(89, 100, 216, 0.25);
+    outline-offset: -3px;
+}
+
+/* =========================================================
+   INFORMAÇÕES COMPLEMENTARES
+   ========================================================= */
+
+.modal-tarefa-form > p {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+
+    margin: -3px 0 0;
+
+    color: #6c7388;
+
+    font-size: 0.82rem;
+    line-height: 1.45;
+}
+
+.modal-tarefa-form > p strong {
+    color: #414861;
+    font-weight: 750;
+}
+
+/* =========================================================
+   RODAPÉ / AÇÕES
+   ========================================================= */
 
 .modal-tarefa-acoes {
     display: flex;
-
-    flex-wrap: wrap;
-
+    align-items: center;
     justify-content: flex-end;
-
     gap: 10px;
 
-    padding-top: 16px;
+    margin-top: 4px;
+    padding-top: 18px;
 
-    border-top:
-        1px solid
-        var(
-            --border,
-            #e5e8f1
-        );
+    border-top: 1px solid #e9edf5;
 }
 
+.modal-tarefa-acoes button {
+    min-height: 42px;
 
-.modal-tarefa-acoes
+    padding: 9px 15px;
+
+    border-radius: 10px;
+
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 750;
+
+    cursor: pointer;
+
+    transition:
+        background 160ms ease,
+        border-color 160ms ease,
+        color 160ms ease,
+        transform 160ms ease,
+        box-shadow 160ms ease;
+}
+
+.modal-tarefa-acoes button:active {
+    transform: translateY(1px);
+}
+
+/* Botão secundário */
+
+.botao-secundario {
+    border: 1px solid #d9dfeb;
+    background: #ffffff;
+    color: #515a72;
+}
+
+.botao-secundario:hover {
+    border-color: #c6cedf;
+    background: #f6f7fa;
+}
+
+/* Botão principal */
+
+.botao-primario {
+    border: 1px solid #5964d8;
+    background: #5964d8;
+    color: #ffffff;
+
+    box-shadow: 0 4px 10px rgba(89, 100, 216, 0.18);
+}
+
+.botao-primario:hover {
+    border-color: #4d57c6;
+    background: #4d57c6;
+    box-shadow: 0 6px 14px rgba(89, 100, 216, 0.22);
+}
+
+/* Botão de exclusão */
+
 .botao-excluir-tarefa {
     margin-right: auto;
 
+    border: 1px solid #f0c9cd;
+    background: #fff7f7;
     color: #b42335;
-
-    border-color: #f0b9c1;
 }
 
-
-.modal-tarefa-acoes
 .botao-excluir-tarefa:hover {
+    border-color: #e7aeb5;
     background: #fff0f1;
-
-    border-color: #e5a3ac;
 }
 
+/* =========================================================
+   FOCO ACESSÍVEL
+   ========================================================= */
 
-.modal-tarefa-acoes
-.botao-salvar-tarefa {
-    background:
-        var(
-            --brand,
-            #5865d8
-        );
-
-    border-color:
-        var(
-            --brand,
-            #5865d8
-        );
-
-    color: #fff;
+.modal-tarefa button:focus-visible,
+.modal-tarefa input:focus-visible,
+.modal-tarefa select:focus-visible {
+    outline: 3px solid rgba(89, 100, 216, 0.24);
+    outline-offset: 2px;
 }
 
+/* =========================================================
+   RESPONSIVIDADE
+   ========================================================= */
 
-.modal-tarefa-acoes
-.botao-salvar-tarefa:hover {
-    background:
-        var(
-            --brand-dark,
-            #424fc0
-        );
-}
+@media (max-width: 640px) {
+    .modal-tarefa {
+        width: calc(100vw - 20px);
+        max-height: calc(100vh - 20px);
 
-
-/* ============================= */
-/* MOBILE */
-/* ============================= */
-
-@media (max-width: 520px) {
-
-    dialog[aria-labelledby] {
-        width:
-            calc(
-                100% - 20px
-            );
-
-        max-height: 90dvh;
-        max-height: 90vh;
-
-        border-radius: 16px;
+        border-radius: 15px;
     }
 
-
-    dialog[aria-labelledby]
-    > :first-child {
-        padding: 20px;
+    .modal-tarefa-conteudo {
+        max-height: calc(100vh - 20px);
     }
-
 
     .modal-tarefa-topo {
-        gap: 10px;
+        padding: 18px 18px 15px;
     }
 
-
-    dialog[aria-labelledby] h2 {
-        font-size: 1.2rem;
+    .modal-tarefa-topo h2 {
+        font-size: 1.15rem;
     }
 
-
-    .modal-segmentos {
-        grid-template-columns:
-            repeat(
-                2,
-                minmax(0, 1fr)
-            );
+    .modal-tarefa-corpo {
+        padding: 18px;
     }
 
+    .grupo-segmentado {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .modal-tarefa-segmentado:nth-of-type(3) .grupo-segmentado {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .botao-segmentado {
+        min-height: 42px;
+        padding: 8px 7px;
+
+        font-size: 0.73rem;
+    }
 
     .modal-tarefa-acoes {
+        flex-wrap: wrap;
+    }
+
+    .botao-excluir-tarefa {
+        margin-right: 0;
+        margin-left: auto;
+    }
+}
+
+@media (max-width: 420px) {
+    .modal-tarefa-acoes {
         display: grid;
-
-        grid-template-columns:
-            1fr 1fr;
+        grid-template-columns: 1fr 1fr;
     }
 
-
-    .modal-tarefa-acoes button {
-        width: 100%;
-    }
-
-
-    .modal-tarefa-acoes
     .botao-excluir-tarefa {
         grid-column: 1 / -1;
         grid-row: 1;
-
         margin: 0;
     }
-}
 
+    .botao-secundario {
+        grid-column: 1;
+        grid-row: 2;
+    }
 
-/* ============================= */
-/* ACESSIBILIDADE */
-/* ============================= */
+    .botao-primario {
+        grid-column: 2;
+        grid-row: 2;
+    }
 
-@media (prefers-reduced-motion: reduce) {
+    .modal-tarefa-segmentado:nth-of-type(3) .grupo-segmentado {
+        grid-template-columns: 1fr;
+    }
 
-    dialog[aria-labelledby] *,
-    dialog[aria-labelledby]
-    *::before,
-    dialog[aria-labelledby]
-    *::after {
-        transition-duration:
-            .01ms !important;
+    .botao-segmentado {
+        border-right: 0;
+        border-bottom: 1px solid #d9dfeb;
+    }
+
+    .botao-segmentado:last-child {
+        border-bottom: 0;
     }
 }
