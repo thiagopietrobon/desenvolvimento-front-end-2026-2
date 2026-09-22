@@ -1,15 +1,9 @@
 <!doctype html>
 <html lang="pt-BR">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <meta
-    name="theme-color"
-    content="#f4f6fb"
-  >
-
+  <meta name="theme-color" content="#f4f6fb">
   <meta
     name="description"
     content="Organize e acompanhe suas tarefas acadêmicas por etapa, prioridade e prazo."
@@ -18,26 +12,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-  <link
-    rel="stylesheet"
-    href="styles.css"
-  >
-
-  <link
-    rel="stylesheet"
-    href="modal.css"
-  >
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="modal.css">
 
   <title>Gerenciador de Tarefas Acadêmicas</title>
 
-  <script
-    type="module"
-    src="js/app.js"
-  ></script>
+  <script type="module" src="js/app.js"></script>
 </head>
 
 <body>
-
   <div class="aplicacao">
 
     <aside
@@ -45,30 +28,20 @@
       id="sidebar"
       aria-label="Navegação principal"
     >
-
       <a
         class="marca"
         href="#inicio"
         aria-label="Início do gerenciador"
       >
-        <span
-          class="marca-simbolo"
-          aria-hidden="true"
-        >
-          ✦
-        </span>
-
+        <span class="marca-simbolo" aria-hidden="true">✦</span>
         <span class="marca-texto">
           Task<span>Flow</span>
         </span>
       </a>
 
-      <p class="sidebar-legenda">
-        ESPAÇO DE TRABALHO
-      </p>
+      <p class="sidebar-legenda">ESPAÇO DE TRABALHO</p>
 
       <nav class="navegacao">
-
         <a
           class="nav-link ativo"
           href="#quadro"
@@ -85,11 +58,9 @@
           <span aria-hidden="true">⌕</span>
           Buscar tarefas
         </a>
-
       </nav>
 
       <div class="sidebar-rodape">
-
         <span
           class="avatar-iniciais"
           aria-hidden="true"
@@ -101,11 +72,8 @@
           <strong>Meu espaço</strong>
           <small>Organização acadêmica</small>
         </span>
-
       </div>
-
     </aside>
-
 
     <div
       class="conteudo-app"
@@ -126,15 +94,8 @@
         </button>
 
         <div class="topbar-titulos">
-
-          <p class="sobretitulo">
-            ÁREA DE TRABALHO
-          </p>
-
-          <h1>
-            Gerenciador de Tarefas
-          </h1>
-
+          <p class="sobretitulo">ÁREA DE TRABALHO</p>
+          <h1>Gerenciador de Tarefas</h1>
         </div>
 
         <div class="topbar-marca">
@@ -144,30 +105,26 @@
 
       </header>
 
-
       <main>
 
+        <!-- VISÃO GERAL -->
         <section
           class="boas-vindas"
           aria-labelledby="titulo-boas-vindas"
         >
 
           <div>
-
-            <p class="sobretitulo">
-              VISÃO GERAL
-            </p>
+            <p class="sobretitulo">VISÃO GERAL</p>
 
             <h2 id="titulo-boas-vindas">
               Acompanhe seu progresso
             </h2>
 
             <p class="texto-suave">
-              Todas as suas tarefas acadêmicas, organizadas em um só lugar.
+              Todas as suas tarefas acadêmicas,
+              organizadas em um só lugar.
             </p>
-
           </div>
-
 
           <div
             class="progresso-geral"
@@ -175,25 +132,18 @@
           >
 
             <div class="progresso-legenda">
-
-              <span>
-                Progresso geral
-              </span>
-
-              <strong id="progresso-percentual">
-                0%
-              </strong>
-
+              <span>Progresso geral</span>
+              <strong id="progresso-percentual">0%</strong>
             </div>
 
             <div
               class="barra-progresso"
-              id="barra-progresso"
               role="progressbar"
               aria-label="Progresso geral das tarefas"
               aria-valuemin="0"
               aria-valuemax="100"
               aria-valuenow="0"
+              id="barra-progresso"
             >
               <span id="barra-progresso-preenchimento"></span>
             </div>
@@ -207,6 +157,7 @@
         </section>
 
 
+        <!-- FILTROS -->
         <section
           class="painel-filtros"
           id="filtros"
@@ -216,7 +167,6 @@
           <div class="painel-filtros-cabecalho">
 
             <div>
-
               <h2 id="titulo-filtros">
                 Suas tarefas
               </h2>
@@ -224,7 +174,6 @@
               <p class="texto-suave">
                 Encontre e organize o que precisa fazer.
               </p>
-
             </div>
 
             <button
@@ -244,6 +193,7 @@
             method="GET"
           >
 
+            <!-- BUSCA -->
             <div class="linha-controles-topo">
 
               <div class="campo-busca">
@@ -253,10 +203,7 @@
                 </label>
 
                 <div class="input-com-icone">
-
-                  <span aria-hidden="true">
-                    ⌕
-                  </span>
+                  <span aria-hidden="true">⌕</span>
 
                   <input
                     type="search"
@@ -265,34 +212,45 @@
                     placeholder="Buscar pelo título…"
                     autocomplete="off"
                   >
-
                 </div>
 
               </div>
 
+            </div>
+
+
+            <!-- CONTROLE DOS FILTROS -->
+            <div class="filtros-mobile-controle">
 
               <button
                 type="button"
                 id="btn-filtros-mobile"
                 class="botao-filtros-mobile"
                 aria-expanded="false"
-                aria-controls="painel-filtros-avancados"
+                aria-controls="painel-filtros-opcoes"
               >
-                <span aria-hidden="true">
-                  ☷
-                </span>
-
+                <span aria-hidden="true">☷</span>
                 Filtros
               </button>
+
+              <span
+                id="contador-filtros"
+                class="contador-filtros"
+                hidden
+              >
+                0 ativos
+              </span>
 
             </div>
 
 
+            <!-- OPÇÕES -->
             <div
-              id="painel-filtros-avancados"
-              class="painel-filtros-avancados"
+              id="painel-filtros-opcoes"
+              class="painel-filtros-opcoes"
             >
 
+              <!-- ORDENAÇÃO -->
               <div class="campo-ordenacao">
 
                 <label for="ordenacao-prazo">
@@ -315,164 +273,143 @@
               </div>
 
 
-              <div class="linha-filtros-radios">
+              <!-- STATUS -->
+              <fieldset>
 
-                <fieldset>
+                <legend>Status</legend>
 
-                  <legend>
-                    Status
-                  </legend>
+                <div class="opcoes-filtro">
 
-                  <div class="opcoes-filtro">
-
-                    <div class="item-radio">
-                      <input
-                        type="radio"
-                        id="status-todos"
-                        name="status"
-                        value="todos"
-                        checked
-                      >
-
-                      <label for="status-todos">
-                        Todos
-                      </label>
-                    </div>
-
-
-                    <div class="item-radio">
-                      <input
-                        type="radio"
-                        id="status-fazer"
-                        name="status"
-                        value="a-fazer"
-                      >
-
-                      <label for="status-fazer">
-                        A Fazer
-                      </label>
-                    </div>
-
-
-                    <div class="item-radio">
-                      <input
-                        type="radio"
-                        id="status-andamento"
-                        name="status"
-                        value="em-andamento"
-                      >
-
-                      <label for="status-andamento">
-                        Em Andamento
-                      </label>
-                    </div>
-
-
-                    <div class="item-radio">
-                      <input
-                        type="radio"
-                        id="status-revisao"
-                        name="status"
-                        value="em-revisao"
-                      >
-
-                      <label for="status-revisao">
-                        Em Revisão
-                      </label>
-                    </div>
-
-
-                    <div class="item-radio">
-                      <input
-                        type="radio"
-                        id="status-concluida"
-                        name="status"
-                        value="concluida"
-                      >
-
-                      <label for="status-concluida">
-                        Concluída
-                      </label>
-                    </div>
-
+                  <div class="item-radio">
+                    <input
+                      type="radio"
+                      id="status-todos"
+                      name="status"
+                      value="todos"
+                      checked
+                    >
+                    <label for="status-todos">
+                      Todos
+                    </label>
                   </div>
 
-                </fieldset>
-
-
-                <fieldset>
-
-                  <legend>
-                    Prioridade
-                  </legend>
-
-                  <div class="opcoes-filtro">
-
-                    <div class="item-radio">
-                      <input
-                        type="radio"
-                        id="prioridade-todas"
-                        name="prioridade"
-                        value="todas"
-                        checked
-                      >
-
-                      <label for="prioridade-todas">
-                        Todas
-                      </label>
-                    </div>
-
-
-                    <div class="item-radio">
-                      <input
-                        type="radio"
-                        id="prioridade-baixa"
-                        name="prioridade"
-                        value="Baixa"
-                      >
-
-                      <label for="prioridade-baixa">
-                        Baixa
-                      </label>
-                    </div>
-
-
-                    <div class="item-radio">
-                      <input
-                        type="radio"
-                        id="prioridade-media"
-                        name="prioridade"
-                        value="Média"
-                      >
-
-                      <label for="prioridade-media">
-                        Média
-                      </label>
-                    </div>
-
-
-                    <div class="item-radio">
-                      <input
-                        type="radio"
-                        id="prioridade-alta"
-                        name="prioridade"
-                        value="Alta"
-                      >
-
-                      <label for="prioridade-alta">
-                        Alta
-                      </label>
-                    </div>
-
+                  <div class="item-radio">
+                    <input
+                      type="radio"
+                      id="status-fazer"
+                      name="status"
+                      value="a-fazer"
+                    >
+                    <label for="status-fazer">
+                      A Fazer
+                    </label>
                   </div>
 
-                </fieldset>
+                  <div class="item-radio">
+                    <input
+                      type="radio"
+                      id="status-andamento"
+                      name="status"
+                      value="em-andamento"
+                    >
+                    <label for="status-andamento">
+                      Em Andamento
+                    </label>
+                  </div>
 
-              </div>
+                  <div class="item-radio">
+                    <input
+                      type="radio"
+                      id="status-revisao"
+                      name="status"
+                      value="em-revisao"
+                    >
+                    <label for="status-revisao">
+                      Em Revisão
+                    </label>
+                  </div>
+
+                  <div class="item-radio">
+                    <input
+                      type="radio"
+                      id="status-concluida"
+                      name="status"
+                      value="concluida"
+                    >
+                    <label for="status-concluida">
+                      Concluída
+                    </label>
+                  </div>
+
+                </div>
+
+              </fieldset>
+
+
+              <!-- PRIORIDADE -->
+              <fieldset>
+
+                <legend>Prioridade</legend>
+
+                <div class="opcoes-filtro">
+
+                  <div class="item-radio">
+                    <input
+                      type="radio"
+                      id="prioridade-todas"
+                      name="prioridade"
+                      value="todas"
+                      checked
+                    >
+                    <label for="prioridade-todas">
+                      Todas
+                    </label>
+                  </div>
+
+                  <div class="item-radio">
+                    <input
+                      type="radio"
+                      id="prioridade-baixa"
+                      name="prioridade"
+                      value="Baixa"
+                    >
+                    <label for="prioridade-baixa">
+                      Baixa
+                    </label>
+                  </div>
+
+                  <div class="item-radio">
+                    <input
+                      type="radio"
+                      id="prioridade-media"
+                      name="prioridade"
+                      value="Média"
+                    >
+                    <label for="prioridade-media">
+                      Média
+                    </label>
+                  </div>
+
+                  <div class="item-radio">
+                    <input
+                      type="radio"
+                      id="prioridade-alta"
+                      name="prioridade"
+                      value="Alta"
+                    >
+                    <label for="prioridade-alta">
+                      Alta
+                    </label>
+                  </div>
+
+                </div>
+
+              </fieldset>
 
             </div>
 
 
+            <!-- FILTROS ATIVOS -->
             <div
               id="filtros-ativos"
               class="filtros-ativos"
@@ -484,6 +421,7 @@
         </section>
 
 
+        <!-- QUADRO -->
         <section
           class="quadro-painel"
           id="quadro"
@@ -506,7 +444,8 @@
             </div>
 
             <p class="quadro-ajuda">
-              Selecione “Ver detalhes” para editar ou excluir uma tarefa.
+              Selecione “Ver detalhes” para editar
+              ou excluir uma tarefa.
             </p>
 
           </div>
@@ -519,6 +458,7 @@
           ></p>
 
 
+          <!-- ABAS MOBILE -->
           <div
             class="abas-mobile"
             role="tablist"
@@ -568,16 +508,16 @@
           </div>
 
 
+          <!-- COLUNAS -->
           <div class="quadro-colunas">
 
             <section
-              class="coluna coluna--todo coluna--ativa"
+              class="coluna coluna--todo"
               data-coluna="a-fazer"
               aria-labelledby="quadro-a-fazer"
             >
 
               <div class="coluna-cabecalho">
-
                 <span
                   class="ponto-status"
                   aria-hidden="true"
@@ -586,7 +526,6 @@
                 <h3 id="quadro-a-fazer">
                   A Fazer
                 </h3>
-
               </div>
 
               <ul data-lista-status="a-fazer"></ul>
@@ -608,7 +547,6 @@
             >
 
               <div class="coluna-cabecalho">
-
                 <span
                   class="ponto-status"
                   aria-hidden="true"
@@ -617,7 +555,6 @@
                 <h3 id="quadro-em-andamento">
                   Em Andamento
                 </h3>
-
               </div>
 
               <ul data-lista-status="em-andamento"></ul>
@@ -639,7 +576,6 @@
             >
 
               <div class="coluna-cabecalho">
-
                 <span
                   class="ponto-status"
                   aria-hidden="true"
@@ -648,7 +584,6 @@
                 <h3 id="quadro-em-revisao">
                   Em Revisão
                 </h3>
-
               </div>
 
               <ul data-lista-status="em-revisao"></ul>
@@ -670,7 +605,6 @@
             >
 
               <div class="coluna-cabecalho">
-
                 <span
                   class="ponto-status"
                   aria-hidden="true"
@@ -679,7 +613,6 @@
                 <h3 id="quadro-concluida">
                   Concluída
                 </h3>
-
               </div>
 
               <ul data-lista-status="concluida"></ul>
@@ -708,7 +641,9 @@
 
         <span>
           Desenvolvido por
-          <strong>Thiago Henrique B. Pietrobon</strong>
+          <strong>
+            Thiago Henrique B. Pietrobon
+          </strong>
           · Desenvolvimento Front-End
         </span>
 
@@ -726,5 +661,4 @@
   ></div>
 
 </body>
-
 </html>
