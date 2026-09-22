@@ -561,10 +561,12 @@ select:focus {
 }
 
 
-/* Botão de filtros compacto */
+/* Botão de filtros */
 
 .btn-filtros-mobile {
-    display: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 
     min-height: 44px;
     padding: 9px 13px;
@@ -605,154 +607,6 @@ select:focus {
 
     font-size: 0.65rem;
     font-weight: 800;
-}
-
-
-/* Painel interno de opções */
-
-.painel-filtros-opcoes {
-    margin-top: 15px;
-    padding-top: 15px;
-
-    border-top: 1px solid var(--border);
-}
-
-.painel-filtros-opcoes[hidden] {
-    display: none;
-}
-
-.linha-filtros-radios {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-}
-
-fieldset {
-    min-width: 0;
-
-    margin: 0;
-    padding: 10px 13px;
-
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-
-    gap: 8px 13px;
-
-    border: 1px solid var(--border);
-    border-radius: 11px;
-
-    background: #fbfcff;
-}
-
-legend {
-    padding: 0 5px;
-}
-
-.opcoes-filtro {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-
-    gap: 8px 13px;
-}
-
-.item-radio {
-    display: inline-flex;
-    align-items: center;
-
-    gap: 6px;
-
-    white-space: nowrap;
-}
-
-.item-radio input {
-    accent-color: var(--brand);
-}
-
-.item-radio label {
-    cursor: pointer;
-
-    font-size: 0.78rem;
-    font-weight: 550;
-}
-
-
-/* Chips */
-
-.filtros-ativos {
-    display: flex;
-    flex-wrap: wrap;
-
-    gap: 7px;
-
-    margin-top: 12px;
-}
-
-.filtro-chip {
-    display: inline-flex;
-    align-items: center;
-
-    gap: 7px;
-
-    padding: 5px 9px;
-
-    border: 1px solid #dfe2fa;
-    border-radius: 99px;
-
-    background: var(--brand-soft);
-    color: var(--brand-dark);
-
-    font-size: 0.75rem;
-    font-weight: 700;
-}
-
-.filtro-chip button {
-    display: grid;
-    place-items: center;
-
-    width: 18px;
-    height: 18px;
-
-    padding: 0;
-
-    border: 0;
-    border-radius: 50%;
-
-    background: transparent;
-    color: inherit;
-
-    font-size: 1rem;
-    line-height: 1;
-}
-
-.filtro-chip button:hover {
-    background: rgba(88, 101, 216, 0.12);
-}
-
-
-/* Limpar */
-
-.botao-limpar {
-    padding: 9px 13px;
-
-    border: 1px solid var(--border);
-    border-radius: 10px;
-
-    background: #fff;
-    color: var(--brand-dark);
-
-    font-size: 0.8rem;
-    font-weight: 700;
-
-    transition:
-        background 0.18s ease,
-        border-color 0.18s ease;
-}
-
-.botao-limpar:hover {
-    background: var(--brand-soft);
-    border-color: #cfd4f4;
 }
 
 
@@ -1353,13 +1207,6 @@ footer strong {
         flex: 1;
     }
 
-    .btn-filtros-mobile {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-
-        flex-shrink: 0;
-    }
 
     .painel-filtros-opcoes {
         padding-top: 14px;
