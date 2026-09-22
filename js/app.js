@@ -23,9 +23,10 @@ const estado = {
 
 let temporizadorAviso;
 
-/* =========================================================
-   AVISOS
-   ========================================================= */
+
+// =========================================================
+// AVISOS
+// =========================================================
 
 function mostrarAviso(mensagem, tipo = "sucesso") {
     let aviso = document.getElementById("aviso-acoes");
@@ -70,9 +71,10 @@ function mostrarAviso(mensagem, tipo = "sucesso") {
     }, 3500);
 }
 
-/* =========================================================
-   PRAZOS
-   ========================================================= */
+
+// =========================================================
+// PRAZOS
+// =========================================================
 
 function obterValorPrazo(prazo) {
     if (typeof prazo !== "string" || !prazo.trim()) {
@@ -88,26 +90,28 @@ function obterValorPrazo(prazo) {
     return data.getTime();
 }
 
+
+// =========================================================
+// TAREFAS ATRASADAS
+// =========================================================
+
 function tarefaEstaAtrasada(tarefa) {
     if (!tarefa.prazo || tarefa.status === "concluida") {
         return false;
     }
 
     const hoje = new Date();
-
     hoje.setHours(0, 0, 0, 0);
 
     const prazo = new Date(`${tarefa.prazo}T00:00:00`);
 
-    return (
-        !Number.isNaN(prazo.getTime()) &&
-        prazo < hoje
-    );
+    return !Number.isNaN(prazo.getTime()) && prazo < hoje;
 }
 
-/* =========================================================
-   FILTROS E ORDENAÇÃO
-   ========================================================= */
+
+// =========================================================
+// FILTROS + ORDENAÇÃO
+// =========================================================
 
 function obterTarefasDerivadas() {
     const termo = estado.busca
@@ -134,20 +138,17 @@ function obterTarefasDerivadas() {
     }));
 
     return [...tarefasComPrazo].sort((a, b) => {
-        const valorA = obterValorPrazo(a.prazo);
-        const valorB = obterValorPrazo(b.prazo);
+        const parse = (data) => {
+            const numero = data
+                ? Date.parse(`${data}T00:00:00`)
+                : NaN;
 
-        const prazoA =
-            valorA === null
+            return Number.isNaN(numero)
                 ? Number.POSITIVE_INFINITY
-                : valorA;
+                : numero;
+        };
 
-        const prazoB =
-            valorB === null
-                ? Number.POSITIVE_INFINITY
-                : valorB;
-
-        const delta = prazoA - prazoB;
+        const delta = parse(a.prazo) - parse(b.prazo);
 
         return estado.ordenacao === "prazo-asc"
             ? delta
@@ -155,57 +156,10 @@ function obterTarefasDerivadas() {
     });
 }
 
-/* =========================================================
-   CONTADOR DE FILTROS
-   ========================================================= */
 
-function obterQuantidadeFiltrosAtivos() {
-    let quantidade = 0;
-
-    if (estado.busca.trim()) {
-        quantidade += 1;
-    }
-
-    if (estado.status !== "todos") {
-        quantidade += 1;
-    }
-
-    if (estado.prioridade !== "todas") {
-        quantidade += 1;
-    }
-
-    return quantidade;
-}
-
-function atualizarContadorFiltros() {
-    const contador =
-        document.getElementById("contador-filtros");
-
-    const botao =
-        document.getElementById("btn-filtros-mobile");
-
-    if (!contador || !botao) {
-        return;
-    }
-
-    const quantidade =
-        obterQuantidadeFiltrosAtivos();
-
-    contador.textContent = String(quantidade);
-
-    contador.hidden = quantidade === 0;
-
-    botao.setAttribute(
-        "aria-label",
-        quantidade > 0
-            ? `Abrir filtros, ${quantidade} filtro${quantidade === 1 ? "" : "s"} ativo${quantidade === 1 ? "" : "s"}`
-            : "Abrir filtros"
-    );
-}
-
-/* =========================================================
-   PROGRESSO
-   ========================================================= */
+// =========================================================
+// PROGRESSO
+// =========================================================
 
 function atualizarProgresso(tarefasVisiveis) {
     const total = estado.tarefas.length;
@@ -219,19 +173,13 @@ function atualizarProgresso(tarefasVisiveis) {
         : 0;
 
     const elementoPercentual =
-        document.getElementById(
-            "progresso-percentual"
-        );
+        document.getElementById("progresso-percentual");
 
     const resumo =
-        document.getElementById(
-            "progresso-resumo"
-        );
+        document.getElementById("progresso-resumo");
 
     const barra =
-        document.getElementById(
-            "barra-progresso"
-        );
+        document.getElementById("barra-progresso");
 
     const preenchimento =
         document.getElementById(
@@ -239,8 +187,7 @@ function atualizarProgresso(tarefasVisiveis) {
         );
 
     if (elementoPercentual) {
-        elementoPercentual.textContent =
-            `${percentual}%`;
+        elementoPercentual.textContent = `${percentual}%`;
     }
 
     if (resumo) {
@@ -261,8 +208,7 @@ function atualizarProgresso(tarefasVisiveis) {
     }
 
     if (preenchimento) {
-        preenchimento.style.width =
-            `${percentual}%`;
+        preenchimento.style.width = `${percentual}%`;
     }
 
     const existemFiltros =
@@ -271,17 +217,14 @@ function atualizarProgresso(tarefasVisiveis) {
         estado.busca.trim() !== "";
 
     document
-        .querySelectorAll(
-            "[data-progresso-status]"
-        )
+        .querySelectorAll("[data-progresso-status]")
         .forEach((elemento) => {
             const status =
                 elemento.dataset.progressoStatus;
 
             const quantidade =
                 tarefasVisiveis.filter(
-                    (tarefa) =>
-                        tarefa.status === status
+                    (tarefa) => tarefa.status === status
                 ).length;
 
             elemento.textContent =
@@ -299,15 +242,40 @@ function atualizarProgresso(tarefasVisiveis) {
         });
 }
 
-/* =========================================================
-   CHIPS DE FILTROS
-   ========================================================= */
+
+// =========================================================
+// CONTADOR DE FILTROS
+// =========================================================
+
+function atualizarContadorFiltros() {
+    const contador =
+        document.getElementById("contador-filtros");
+
+    if (!contador) {
+        return;
+    }
+
+    let quantidade = 0;
+
+    if (estado.status !== "todos") {
+        quantidade++;
+    }
+
+    if (estado.prioridade !== "todas") {
+        quantidade++;
+    }
+
+    contador.textContent = String(quantidade);
+}
+
+
+// =========================================================
+// CHIPS DOS FILTROS
+// =========================================================
 
 function atualizarChips() {
     const area =
-        document.getElementById(
-            "filtros-ativos"
-        );
+        document.getElementById("filtros-ativos");
 
     if (!area) {
         return;
@@ -364,6 +332,7 @@ function atualizarChips() {
         );
 
         botao.addEventListener("click", () => {
+
             if (tipo === "busca") {
                 estado.busca = "";
 
@@ -415,9 +384,10 @@ function atualizarChips() {
     });
 }
 
-/* =========================================================
-   RENDERIZAÇÃO GERAL
-   ========================================================= */
+
+// =========================================================
+// RENDERIZAÇÃO
+// =========================================================
 
 function renderizar() {
     const tarefasVisiveis =
@@ -437,9 +407,10 @@ function renderizar() {
     atualizarContadorFiltros();
 }
 
-/* =========================================================
-   ARMAZENAMENTO LOCAL
-   ========================================================= */
+
+// =========================================================
+// LOCAL STORAGE
+// =========================================================
 
 function persistirTarefas() {
     try {
@@ -449,6 +420,7 @@ function persistirTarefas() {
         );
 
         return true;
+
     } catch (erro) {
         console.error(
             "Falha ao persistir tarefas:",
@@ -458,6 +430,7 @@ function persistirTarefas() {
         return false;
     }
 }
+
 
 function obterTarefasSalvas() {
     try {
@@ -476,6 +449,7 @@ function obterTarefasSalvas() {
         return Array.isArray(tarefas)
             ? tarefas
             : null;
+
     } catch (erro) {
         console.error(
             "Falha ao recuperar tarefas:",
@@ -486,9 +460,10 @@ function obterTarefasSalvas() {
     }
 }
 
-/* =========================================================
-   EDIÇÃO
-   ========================================================= */
+
+// =========================================================
+// EDITAR TAREFA
+// =========================================================
 
 function salvarTarefa(atualizada) {
     const indice =
@@ -532,6 +507,11 @@ function salvarTarefa(atualizada) {
     return true;
 }
 
+
+// =========================================================
+// EXCLUIR TAREFA
+// =========================================================
+
 function excluirTarefa(id) {
     const indice =
         estado.tarefas.findIndex(
@@ -549,7 +529,10 @@ function excluirTarefa(id) {
         return false;
     }
 
-    estado.tarefas.splice(indice, 1);
+    estado.tarefas.splice(
+        indice,
+        1
+    );
 
     const salvou =
         persistirTarefas();
@@ -568,115 +551,10 @@ function excluirTarefa(id) {
     return true;
 }
 
-/* =========================================================
-   PAINEL DE FILTROS
-   ========================================================= */
 
-function instalarPainelFiltros() {
-    const botao =
-        document.getElementById(
-            "btn-filtros-mobile"
-        );
-
-    const painel =
-        document.getElementById(
-            "painel-filtros-opcoes"
-        );
-
-    if (!botao || !painel) {
-        return;
-    }
-
-    const fechar = () => {
-        painel.hidden = true;
-
-        botao.setAttribute(
-            "aria-expanded",
-            "false"
-        );
-
-        botao.classList.remove("ativo");
-    };
-
-    const alternar = () => {
-        const aberto =
-            painel.hidden;
-
-        painel.hidden = !aberto;
-
-        botao.setAttribute(
-            "aria-expanded",
-            String(aberto)
-        );
-
-        botao.classList.toggle(
-            "ativo",
-            aberto
-        );
-    };
-
-    botao.addEventListener(
-        "click",
-        (evento) => {
-            evento.stopPropagation();
-            alternar();
-        }
-    );
-
-    painel.addEventListener(
-        "click",
-        (evento) => {
-            evento.stopPropagation();
-        }
-    );
-
-    document.addEventListener(
-        "click",
-        () => {
-            if (!painel.hidden) {
-                fechar();
-            }
-        }
-    );
-
-    /*
-     * Mantém o painel aberto quando o usuário
-     * altera os filtros dentro dele.
-     */
-    painel.addEventListener(
-        "change",
-        () => {
-            painel.hidden = false;
-
-            botao.setAttribute(
-                "aria-expanded",
-                "true"
-            );
-
-            botao.classList.add("ativo");
-        }
-    );
-
-    /*
-     * Esc fecha o painel.
-     */
-    document.addEventListener(
-        "keydown",
-        (evento) => {
-            if (
-                evento.key === "Escape" &&
-                !painel.hidden
-            ) {
-                fechar();
-                botao.focus();
-            }
-        }
-    );
-}
-
-/* =========================================================
-   FILTROS
-   ========================================================= */
+// =========================================================
+// EVENTOS DOS FILTROS
+// =========================================================
 
 function instalarEventosFiltros() {
     const form =
@@ -732,18 +610,21 @@ function instalarEventosFiltros() {
             ) {
                 estado.status =
                     controle.value;
+
             } else if (
                 controle.name ===
                 "prioridade"
             ) {
                 estado.prioridade =
                     controle.value;
+
             } else if (
                 controle.name ===
                 "ordenacao"
             ) {
                 estado.ordenacao =
                     controle.value;
+
             } else {
                 return;
             }
@@ -794,9 +675,88 @@ function instalarEventosFiltros() {
     );
 }
 
-/* =========================================================
-   NAVEGAÇÃO MOBILE
-   ========================================================= */
+
+// =========================================================
+// PAINEL DE FILTROS
+// =========================================================
+
+function instalarPainelFiltros() {
+    const botao =
+        document.getElementById(
+            "btn-filtros-mobile"
+        );
+
+    const painel =
+        document.getElementById(
+            "painel-filtros-opcoes"
+        );
+
+    if (!botao || !painel) {
+        return;
+    }
+
+    const fechar = () => {
+        painel.hidden = true;
+
+        botao.setAttribute(
+            "aria-expanded",
+            "false"
+        );
+    };
+
+    const abrirOuFechar = () => {
+        const aberto =
+            painel.hidden;
+
+        painel.hidden = !aberto;
+
+        botao.setAttribute(
+            "aria-expanded",
+            String(aberto)
+        );
+    };
+
+    botao.addEventListener(
+        "click",
+        abrirOuFechar
+    );
+
+    document.addEventListener(
+        "click",
+        (evento) => {
+            if (
+                painel.hidden ||
+                painel.contains(
+                    evento.target
+                ) ||
+                botao.contains(
+                    evento.target
+                )
+            ) {
+                return;
+            }
+
+            fechar();
+        }
+    );
+
+    document.addEventListener(
+        "keydown",
+        (evento) => {
+            if (
+                evento.key ===
+                "Escape"
+            ) {
+                fechar();
+            }
+        }
+    );
+}
+
+
+// =========================================================
+// NAVEGAÇÃO MOBILE
+// =========================================================
 
 function instalarNavegacaoMobile() {
     const menu =
@@ -879,18 +839,18 @@ function instalarNavegacaoMobile() {
         fechar
     );
 
-    sidebar
-        ?.querySelectorAll("a")
-        .forEach((link) => {
-            link.addEventListener(
-                "click",
-                fechar
-            );
-        });
+    sidebar?.querySelectorAll(
+        "a"
+    ).forEach((link) => {
+        link.addEventListener(
+            "click",
+            fechar
+        );
+    });
 
-    /*
-     * Abas do quadro no celular.
-     */
+
+    // Abas mobile
+
     const abas = [
         ...document.querySelectorAll(
             "[data-aba]"
@@ -904,9 +864,11 @@ function instalarNavegacaoMobile() {
     ];
 
     const ativarAba = (status) => {
+
         abas.forEach((aba) => {
             const ativa =
-                aba.dataset.aba === status;
+                aba.dataset.aba ===
+                status;
 
             aba.classList.toggle(
                 "ativa",
@@ -919,12 +881,15 @@ function instalarNavegacaoMobile() {
             );
         });
 
-        colunas.forEach((coluna) => {
-            coluna.classList.toggle(
-                "coluna--ativa",
-                coluna.dataset.coluna === status
-            );
-        });
+        colunas.forEach(
+            (coluna) => {
+                coluna.classList.toggle(
+                    "coluna--ativa",
+                    coluna.dataset.coluna ===
+                    status
+                );
+            }
+        );
     };
 
     abas.forEach((aba) => {
@@ -945,9 +910,10 @@ function instalarNavegacaoMobile() {
     }
 }
 
-/* =========================================================
-   INICIALIZAÇÃO
-   ========================================================= */
+
+// =========================================================
+// INICIALIZAÇÃO
+// =========================================================
 
 async function iniciarApp() {
     const quadro =
@@ -965,7 +931,9 @@ async function iniciarApp() {
     }
 
     instalarEventosFiltros();
+
     instalarPainelFiltros();
+
     instalarNavegacaoMobile();
 
     estado.carregamento = true;
@@ -979,6 +947,7 @@ async function iniciarApp() {
         estado.tarefas =
             obterTarefasSalvas() ??
             originais;
+
     } catch (erro) {
         estado.erro = erro;
 
@@ -989,11 +958,13 @@ async function iniciarApp() {
             estado.tarefas = salvas;
             estado.erro = null;
         }
+
     } finally {
         estado.carregamento = false;
 
         renderizar();
     }
 }
+
 
 iniciarApp();
