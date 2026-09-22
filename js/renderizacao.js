@@ -3,7 +3,7 @@ const ROTULOS_STATUS = {
     "a-fazer": "A Fazer",
     "em-andamento": "Em Andamento",
     "em-revisao": "Em Revisão",
-    concluida: "Concluída"
+    "concluida": "Concluída"
 };
 
 const STATUS = [
@@ -15,109 +15,30 @@ const STATUS = [
 
 const PRIORIDADES = ["Baixa", "Média", "Alta"];
 
-/* --------------------------------------------------
-   DATAS
--------------------------------------------------- */
-
-function converterData(data) {
-    if (typeof data !== "string") {
-        return null;
-    }
-
-    const partes = data.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-
-    if (!partes) {
-        return null;
-    }
-
-    const ano = Number(partes[1]);
-    const mes = Number(partes[2]);
-    const dia = Number(partes[3]);
-
-    const dataConvertida = new Date(
-        Date.UTC(ano, mes - 1, dia)
-    );
-
-    if (
-        dataConvertida.getUTCFullYear() !== ano ||
-        dataConvertida.getUTCMonth() !== mes - 1 ||
-        dataConvertida.getUTCDate() !== dia
-    ) {
-        return null;
-    }
-
-    return dataConvertida;
-}
-
-function formatarData(data) {
-    if (!data) {
-        return "Não definido";
-    }
-
-    const dataConvertida = converterData(data);
-
-    if (!dataConvertida) {
-        return "Data inválida";
-    }
-
-    const dia = String(dataConvertida.getUTCDate())
-        .padStart(2, "0");
-
-    const mes = String(dataConvertida.getUTCMonth() + 1)
-        .padStart(2, "0");
-
-    const ano = dataConvertida.getUTCFullYear();
-
-    return `${dia}/${mes}/${ano}`;
-}
-
-function estaAtrasada(tarefa) {
-    if (
-        !tarefa.prazo ||
-        tarefa.status === "concluida"
-    ) {
-        return false;
-    }
-
-    const prazo = converterData(tarefa.prazo);
-
-    if (!prazo) {
-        return false;
-    }
-
-    const agora = new Date();
-
-    const hoje = new Date(
-        Date.UTC(
-            agora.getFullYear(),
-            agora.getMonth(),
-            agora.getDate()
-        )
-    );
-
-    return prazo.getTime() < hoje.getTime();
-}
-
-/* --------------------------------------------------
-   ELEMENTOS
--------------------------------------------------- */
-
 function criarLinhaMeta(rotulo, valor, classe = "") {
     const linha = document.createElement("p");
 
-    if (classe) {
-        linha.className = classe;
-    }
+    if (classe) linha.className = classe;
 
-    const textoRotulo = document.createElement("strong");
-    textoRotulo.textContent = `${rotulo}: `;
+    const r = document.createElement("strong");
+    r.textContent = `${rotulo}: `;
 
-    const textoValor = document.createElement("span");
-    textoValor.textContent = valor;
+    const v = document.createElement("span");
+    v.textContent = valor;
 
-    linha.append(textoRotulo, textoValor);
+    linha.append(r, v);
 
     return linha;
+}
+
+function formatarData(data) {
+    if (!data) return "Não definido";
+
+    const partes = String(data).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+    return partes
+        ? `${partes[3]}/${partes[2]}/${partes[1]}`
+        : String(data);
 }
 
 function criarCampo(rotulo, nome, tipo = "text", valor = "") {
@@ -129,11 +50,7 @@ function criarCampo(rotulo, nome, tipo = "text", valor = "") {
     input.name = nome;
     input.type = tipo;
     input.value = valor ?? "";
-
-    if (nome === "titulo") {
-        input.required = true;
-        input.maxLength = 150;
-    }
+    input.required = nome === "titulo";
 
     label.append(input);
 
@@ -147,44 +64,29 @@ function criarSelect(rotulo, nome, opcoes, valor) {
 
     const select = document.createElement("select");
     select.name = nome;
-    select.required = true;
 
-    opcoes.forEach(([valorOpcao, textoOpcao]) => {
+    opcoes.forEach(([v, t]) => {
         const opcao = document.createElement("option");
-
-        opcao.value = valorOpcao;
-        opcao.textContent = textoOpcao;
-
+        opcao.value = v;
+        opcao.textContent = t;
         select.append(opcao);
     });
 
     select.value = valor;
-
     label.append(select);
 
     return label;
 }
 
-/* --------------------------------------------------
-   MODAL
--------------------------------------------------- */
-
 function obterModal() {
-    let modal = document.getElementById(
-        "modal-detalhes-tarefa"
-    );
+    let modal = document.getElementById("modal-detalhes-tarefa");
 
-    if (modal) {
-        return modal;
-    }
+    if (modal) return modal;
 
     modal = document.createElement("dialog");
     modal.id = "modal-detalhes-tarefa";
     modal.className = "modal-tarefa";
-    modal.setAttribute(
-        "aria-labelledby",
-        "modal-tarefa-titulo"
-    );
+    modal.setAttribute("aria-labelledby", "modal-tarefa-titulo");
 
     const conteudo = document.createElement("div");
     conteudo.className = "modal-tarefa-conteudo";
@@ -199,10 +101,7 @@ function obterModal() {
     fechar.type = "button";
     fechar.className = "modal-tarefa-fechar";
     fechar.textContent = "Fechar";
-
-    fechar.addEventListener("click", () => {
-        modal.close();
-    });
+    fechar.addEventListener("click", () => modal.close());
 
     topo.append(titulo, fechar);
 
@@ -214,9 +113,7 @@ function obterModal() {
     modal.append(conteudo);
 
     modal.addEventListener("click", (evento) => {
-        if (evento.target === modal) {
-            modal.close();
-        }
+        if (evento.target === modal) modal.close();
     });
 
     document.body.append(modal);
@@ -224,92 +121,74 @@ function obterModal() {
     return modal;
 }
 
-function abrirDetalhes(
-    tarefa,
-    botaoOrigem,
-    salvarTarefa,
-    excluirTarefa
-) {
+function abrirDetalhes(tarefa, botaoOrigem, salvarTarefa, excluirTarefa) {
     const modal = obterModal();
 
-    const tituloModal = modal.querySelector(
-        "#modal-tarefa-titulo"
-    );
+    const titulo = modal.querySelector("#modal-tarefa-titulo");
+    const corpo = modal.querySelector("[data-modal-corpo]");
 
-    const corpo = modal.querySelector(
-        "[data-modal-corpo]"
-    );
+    titulo.textContent = tarefa.titulo || "Detalhes da tarefa";
 
-    tituloModal.textContent =
-        tarefa.titulo || "Detalhes da tarefa";
+    const form = document.createElement("form");
+    form.className = "modal-tarefa-form";
 
-    const formulario = document.createElement("form");
-    formulario.className = "modal-tarefa-form";
+    form.addEventListener("submit", (evento) => {
+        evento.preventDefault();
 
-    const campoTitulo = criarCampo(
-        "Título",
-        "titulo",
-        "text",
-        tarefa.titulo
-    );
+        const dados = new FormData(form);
 
-    const campoStatus = criarSelect(
-        "Status",
-        "status",
-        STATUS.map((status) => [
-            status,
-            ROTULOS_STATUS[status]
-        ]),
-        tarefa.status
-    );
+        const atualizado = {
+            ...tarefa,
+            titulo: String(dados.get("titulo")).trim(),
+            status: String(dados.get("status")),
+            prioridade: String(dados.get("prioridade")),
+            prazo: String(dados.get("prazo") || "")
+        };
 
-    const campoPrioridade = criarSelect(
-        "Prioridade",
-        "prioridade",
-        PRIORIDADES.map((prioridade) => [
-            prioridade,
-            prioridade
-        ]),
-        tarefa.prioridade
-    );
+        if (!atualizado.titulo) return;
 
-    const campoPrazo = criarCampo(
-        "Prazo",
-        "prazo",
-        "date",
-        converterData(tarefa.prazo)
-            ? tarefa.prazo
-            : ""
-    );
+        salvarTarefa(atualizado);
+        modal.close();
+    });
 
-    formulario.append(
-        campoTitulo,
-        campoStatus,
-        campoPrioridade,
-        campoPrazo
-    );
-
-    formulario.append(
-        criarLinhaMeta(
-            "Projeto",
-            tarefa.projeto || "Geral"
+    form.append(
+        criarCampo("Título", "titulo", "text", tarefa.titulo),
+        criarSelect(
+            "Status",
+            "status",
+            STATUS.map((status) => [
+                status,
+                ROTULOS_STATUS[status]
+            ]),
+            tarefa.status
         ),
+        criarSelect(
+            "Prioridade",
+            "prioridade",
+            PRIORIDADES.map((prioridade) => [
+                prioridade,
+                prioridade
+            ]),
+            tarefa.prioridade
+        ),
+        criarCampo("Prazo", "prazo", "date", tarefa.prazo)
+    );
+
+    form.append(
+        criarLinhaMeta("Projeto", tarefa.projeto || "Geral"),
         criarLinhaMeta(
             "Responsável",
             tarefa.responsavel || "Não atribuído"
         )
     );
 
-    const acoes = document.createElement("div");
-    acoes.className = "modal-tarefa-acoes";
+    const footer = document.createElement("div");
+    footer.className = "modal-tarefa-acoes";
 
     const cancelar = document.createElement("button");
     cancelar.type = "button";
     cancelar.textContent = "Cancelar";
-
-    cancelar.addEventListener("click", () => {
-        modal.close();
-    });
+    cancelar.addEventListener("click", () => modal.close());
 
     const excluir = document.createElement("button");
     excluir.type = "button";
@@ -317,167 +196,83 @@ function abrirDetalhes(
     excluir.textContent = "Excluir tarefa";
 
     excluir.addEventListener("click", () => {
-        const confirmou = window.confirm(
-            `Tem certeza de que deseja excluir ` +
-            `“${tarefa.titulo}”? Esta ação não pode ser desfeita.`
-        );
-
-        if (!confirmou) {
-            return;
+        if (
+            window.confirm(
+                `Tem certeza de que deseja excluir “${tarefa.titulo}”? Esta ação não pode ser desfeita.`
+            )
+        ) {
+            excluirTarefa(tarefa.id);
+            modal.close();
         }
-
-        excluirTarefa(tarefa.id);
-        modal.close();
     });
 
     const salvar = document.createElement("button");
     salvar.type = "submit";
     salvar.textContent = "Salvar alterações";
 
-    acoes.append(cancelar, excluir, salvar);
-    formulario.append(acoes);
+    footer.append(cancelar, excluir, salvar);
+    form.append(footer);
 
-    formulario.addEventListener("submit", (evento) => {
-        evento.preventDefault();
+    corpo.replaceChildren(form);
 
-        if (!formulario.reportValidity()) {
-            return;
-        }
-
-        const dados = new FormData(formulario);
-
-        const titulo = String(
-            dados.get("titulo") ?? ""
-        ).trim();
-
-        const status = String(
-            dados.get("status") ?? ""
-        );
-
-        const prioridade = String(
-            dados.get("prioridade") ?? ""
-        );
-
-        const prazo = String(
-            dados.get("prazo") ?? ""
-        );
-
-        if (!titulo) {
-            campoTitulo.querySelector("input").focus();
-            return;
-        }
-
-        if (!STATUS.includes(status)) {
-            return;
-        }
-
-        if (!PRIORIDADES.includes(prioridade)) {
-            return;
-        }
-
-        if (prazo && !converterData(prazo)) {
-            campoPrazo.querySelector("input").focus();
-            return;
-        }
-
-        const atualizada = {
-            ...tarefa,
-            titulo,
-            status,
-            prioridade,
-            prazo
-        };
-
-        const salvou = salvarTarefa(atualizada);
-
-        // Mantém o modal aberto se a gravação falhar.
-        if (salvou === false) {
-            return;
-        }
-
-        modal.close();
+    modal.addEventListener("close", function restaurar() {
+        modal.removeEventListener("close", restaurar);
+        botaoOrigem?.focus();
     });
 
-    corpo.replaceChildren(formulario);
-
-    // Remove o listener anterior para não acumular callbacks.
-    const restaurarFoco = () => {
-        modal.removeEventListener(
-            "close",
-            restaurarFoco
-        );
-
-        if (botaoOrigem?.isConnected) {
-            botaoOrigem.focus();
-        }
-    };
-
-    modal.addEventListener("close", restaurarFoco);
-
-    if (!modal.open) {
-        modal.showModal();
-    }
-
-    campoTitulo.querySelector("input").focus();
+    modal.showModal();
+    form.querySelector("[name=titulo]").focus();
 }
-
-/* --------------------------------------------------
-   CARTÕES
--------------------------------------------------- */
 
 export function criarCartao(tarefa) {
     const cartao = document.createElement("article");
 
     cartao.className = `cartao cartao--${tarefa.status}`;
-    cartao.dataset.tarefaId = tarefa.id;
 
-    const atrasada = estaAtrasada(tarefa);
-
-    if (atrasada) {
+    if (tarefa.atrasada) {
         cartao.classList.add("cartao--atrasada");
     }
+
+    cartao.dataset.tarefaId = tarefa.id;
 
     const topo = document.createElement("div");
     topo.className = "cartao-topo";
 
     const status = document.createElement("span");
-
-    status.className =
-        `badge-status badge-status--${tarefa.status}`;
-
+    status.className = `badge-status badge-status--${tarefa.status}`;
     status.textContent =
         ROTULOS_STATUS[tarefa.status] || tarefa.status;
 
     topo.append(status);
 
     const titulo = document.createElement("h4");
-    titulo.textContent = tarefa.titulo || "Sem título";
+    titulo.textContent = tarefa.titulo;
 
     const prioridade = document.createElement("span");
 
-    const prioridadeNormalizada = String(
-        tarefa.prioridade || ""
-    )
+    const classePrioridade = String(tarefa.prioridade || "")
         .toLowerCase()
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "");
 
     prioridade.className =
-        `badge-prioridade badge-prioridade--` +
-        prioridadeNormalizada;
+        `badge-prioridade badge-prioridade--${classePrioridade}`;
 
     prioridade.textContent =
         `⚑ ${tarefa.prioridade || "Sem prioridade"}`;
 
     const prazo = document.createElement("p");
     prazo.className = "cartao-prazo";
+    prazo.textContent = `▦ Prazo: ${formatarData(tarefa.prazo)}`;
 
-    prazo.textContent =
-        `▦ Prazo: ${formatarData(tarefa.prazo)}`;
+    if (tarefa.atrasada) {
+        const aviso = document.createElement("span");
 
-    if (atrasada) {
-        prazo.classList.add("etiqueta-atraso");
-        prazo.textContent += " — Atrasada";
+        aviso.className = "etiqueta-atraso";
+        aviso.textContent = "⚠ TAREFA ATRASADA";
+        aviso.setAttribute("role", "status");
+
+        cartao.append(aviso);
     }
 
     const botao = document.createElement("button");
@@ -488,10 +283,7 @@ export function criarCartao(tarefa) {
     cartao.append(
         topo,
         titulo,
-        criarLinhaMeta(
-            "Projeto",
-            tarefa.projeto || "Geral"
-        ),
+        criarLinhaMeta("Projeto", tarefa.projeto || "Geral"),
         criarLinhaMeta(
             "Responsável",
             tarefa.responsavel || "Não atribuído"
@@ -504,72 +296,55 @@ export function criarCartao(tarefa) {
     return cartao;
 }
 
-/* --------------------------------------------------
-   RENDERIZAÇÃO DO QUADRO
--------------------------------------------------- */
-
 export function renderizarTarefas(tarefas, quadro) {
-    if (!quadro) {
-        return;
-    }
+    if (!quadro) return;
 
-    quadro.querySelectorAll("[data-lista-status]")
-        .forEach((lista) => {
-            const status = lista.dataset.listaStatus;
+    quadro.querySelectorAll("[data-lista-status]").forEach((lista) => {
+        const status = lista.dataset.listaStatus;
 
-            const grupo = tarefas.filter(
-                (tarefa) => tarefa.status === status
-            );
+        const grupo = tarefas.filter(
+            (tarefa) => tarefa.status === status
+        );
 
-            const secao = lista.closest(
-                'section[aria-labelledby^="quadro-"]'
-            );
+        const secao = lista.closest(
+            'section[aria-labelledby^="quadro-"]'
+        );
 
-            const titulo = secao?.querySelector("h3");
+        const titulo = secao?.querySelector("h3");
 
-            if (titulo) {
-                let contador = titulo.querySelector(
-                    ".contador-coluna"
+        if (titulo) {
+            let contador = titulo.querySelector(".contador-coluna");
+
+            if (!contador) {
+                contador = document.createElement("span");
+                contador.className = "contador-coluna";
+                contador.setAttribute(
+                    "aria-label",
+                    "Quantidade de tarefas"
                 );
-
-                if (!contador) {
-                    contador = document.createElement("span");
-                    contador.className = "contador-coluna";
-
-                    contador.setAttribute(
-                        "aria-label",
-                        "Quantidade de tarefas"
-                    );
-
-                    titulo.append(contador);
-                }
-
-                contador.textContent = String(grupo.length);
+                titulo.append(contador);
             }
 
-            if (grupo.length === 0) {
-                const vazio = document.createElement("li");
-                vazio.className = "coluna-vazia";
-                vazio.textContent =
-                    "✨ Tudo tranquilo por aqui";
+            contador.textContent = String(grupo.length);
+        }
 
-                lista.replaceChildren(vazio);
-                return;
-            }
+        if (!grupo.length) {
+            const vazio = document.createElement("li");
+            vazio.className = "coluna-vazia";
+            vazio.textContent = "✨ Tudo tranquilo por aqui";
 
-            const itens = grupo.map((tarefa) => {
-                const item = document.createElement("li");
-                item.append(criarCartao(tarefa));
-                return item;
-            });
-
-            lista.replaceChildren(...itens);
-        });
+            lista.replaceChildren(vazio);
+        } else {
+            lista.replaceChildren(
+                ...grupo.map((tarefa) => {
+                    const li = document.createElement("li");
+                    li.append(criarCartao(tarefa));
+                    return li;
+                })
+            );
+        }
+    });
 }
-
-/* --------------------------------------------------
-   EVENTOS DO QUADRO
--------------------------------------------------- */
 
 export function instalarEventosDoQuadro(
     quadro,
@@ -577,50 +352,41 @@ export function instalarEventosDoQuadro(
     salvarTarefa,
     excluirTarefa
 ) {
-    if (!quadro) {
-        return;
-    }
+    if (!quadro) return;
 
     quadro.addEventListener("click", (evento) => {
-        if (!(evento.target instanceof Element)) {
-            return;
-        }
+        if (!(evento.target instanceof Element)) return;
 
         const botao = evento.target.closest(
             'button[data-acao="ver-detalhes"]'
         );
 
-        if (!botao || !quadro.contains(botao)) {
-            return;
-        }
+        if (!botao || !quadro.contains(botao)) return;
 
         const cartao = botao.closest("[data-tarefa-id]");
 
-        if (!cartao) {
-            return;
+        if (!cartao) return;
+
+        const tarefas =
+            typeof obterTarefas === "function"
+                ? obterTarefas()
+                : obterTarefas;
+
+        const tarefa = Array.isArray(tarefas)
+            ? tarefas.find(
+                (item) =>
+                    String(item.id) ===
+                    String(cartao.dataset.tarefaId)
+            )
+            : null;
+
+        if (tarefa) {
+            abrirDetalhes(
+                tarefa,
+                botao,
+                salvarTarefa,
+                excluirTarefa
+            );
         }
-
-        const tarefas = obterTarefas();
-
-        if (!Array.isArray(tarefas)) {
-            return;
-        }
-
-        const tarefa = tarefas.find(
-            (item) =>
-                String(item.id) ===
-                String(cartao.dataset.tarefaId)
-        );
-
-        if (!tarefa) {
-            return;
-        }
-
-        abrirDetalhes(
-            tarefa,
-            botao,
-            salvarTarefa,
-            excluirTarefa
-        );
     });
 }
