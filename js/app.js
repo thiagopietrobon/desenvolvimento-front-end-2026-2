@@ -1,16 +1,18 @@
-
 import { carregarTarefas } from "./api.js";
 import { renderizarEstado } from "./estados.js";
 import { instalarEventosDoQuadro } from "./renderizacao.js";
 
+
 const CHAVE_TAREFAS = "gerenciador-academico-tarefas";
+
 
 const STATUS_LABELS = {
     "a-fazer": "A Fazer",
     "em-andamento": "Em Andamento",
     "em-revisao": "Em Revisão",
-    concluida: "Concluída"
+    "concluida": "Concluída",
 };
+
 
 const estado = {
     tarefas: [],
@@ -19,18 +21,21 @@ const estado = {
     prioridade: "todas",
     ordenacao: "prazo-asc",
     carregamento: true,
-    erro: null
+    erro: null,
 };
+
 
 let temporizadorAviso;
 
-// Exibe avisos de sucesso ou erro.
+
 function mostrarAviso(mensagem, tipo = "sucesso") {
     let aviso = document.getElementById("aviso-acoes");
 
     if (!aviso) {
         aviso = document.createElement("div");
+
         aviso.id = "aviso-acoes";
+
         aviso.setAttribute("role", "status");
         aviso.setAttribute("aria-live", "polite");
 
@@ -46,13 +51,14 @@ function mostrarAviso(mensagem, tipo = "sucesso") {
             fontWeight: "700",
             background: "#fff",
             color: "#20243a",
-            border: "1px solid #dfe4ef"
+            border: "1px solid #dfe4ef",
         });
 
         document.body.append(aviso);
     }
 
     aviso.textContent = mensagem;
+
     aviso.style.borderLeft =
         tipo === "erro"
             ? "4px solid #d94b5b"
@@ -67,72 +73,98 @@ function mostrarAviso(mensagem, tipo = "sucesso") {
     }, 3500);
 }
 
-// Converte o prazo para um valor comparável.
-// Datas inválidas ficam no final, independentemente da ordenação.
-function obterValorPrazo(prazo) {
-    if (typeof prazo !== "string" || !prazo.trim()) {
-        return null;
-    }
 
-    const data = new Date(`${prazo}T00:00:00`);
-
-    if (Number.isNaN(data.getTime())) {
-        return null;
-    }
-
-    return data.getTime();
-}
-
-// Aplica busca, filtros e ordenação.
 function tarefaEstaAtrasada(tarefa) {
-    if (!tarefa.prazo || tarefa.status === "concluida") {
+    if (!tarefa?.prazo || tarefa.status === "concluida") {
+        return false;
+    }
+
+    const prazo = new Date(`${tarefa.prazo}T00:00:00`);
+
+    if (Number.isNaN(prazo.getTime())) {
         return false;
     }
 
     const hoje = new Date();
+
     hoje.setHours(0, 0, 0, 0);
 
-    const prazo = new Date(`${tarefa.prazo}T00:00:00`);
-
-    return !Number.isNaN(prazo.getTime()) && prazo < hoje;
+    return prazo < hoje;
 }
 
+
 function obterTarefasDerivadas() {
-    const termo = estado.busca.trim().toLocaleLowerCase("pt-BR");
+    const termo = estado.busca
+        .trim()
+        .toLocaleLowerCase("pt-BR");
 
-    const filtradas = estado.tarefas.filter((t) =>
-        String(t.titulo ?? "")
-            .toLocaleLowerCase("pt-BR")
-            .includes(termo) &&
-        (estado.status === "todos" || t.status === estado.status) &&
-        (estado.prioridade === "todas" || t.prioridade === estado.prioridade)
-    );
+    const filtradas = estado.tarefas
+        .filter((tarefa) => {
+            const titulo = String(
+                tarefa.titulo ?? ""
+            ).toLocaleLowerCase("pt-BR");
 
-    const tarefasComPrazo = filtradas.map((tarefa) => ({
-        ...tarefa,
-        atrasada: tarefaEstaAtrasada(tarefa)
-    }));
+            const correspondeBusca =
+                titulo.includes(termo);
 
-    return [...tarefasComPrazo].sort((a, b) => {
-        const parse = (data) => {
-            const numero = data
-                ? Date.parse(`${data}T00:00:00`)
-                : NaN;
+            const correspondeStatus =
+                estado.status === "todos" ||
+                tarefa.status === estado.status;
 
-            return Number.isNaN(numero)
+            const correspondePrioridade =
+                estado.prioridade === "todas" ||
+                tarefa.prioridade === estado.prioridade;
+
+            return (
+                correspondeBusca &&
+                correspondeStatus &&
+                correspondePrioridade
+            );
+        })
+        .map((tarefa) => ({
+            ...tarefa,
+            atrasada: tarefaEstaAtrasada(tarefa),
+        }));
+
+
+    return [...filtradas].sort((a, b) => {
+        const interpretarPrazo = (data) => {
+            if (!data) {
+                return Number.POSITIVE_INFINITY;
+            }
+
+            const valor = Date.parse(
+                `${data}T00:00:00`
+            );
+
+            return Number.isNaN(valor)
                 ? Number.POSITIVE_INFINITY
-                : numero;
+                : valor;
         };
 
-        const delta = parse(a.prazo) - parse(b.prazo);
 
-        return estado.ordenacao === "prazo-asc"
-            ? delta
-            : -delta;
+        const prazoA = interpretarPrazo(a.prazo);
+        const prazoB = interpretarPrazo(b.prazo);
+
+        const diferenca = prazoA - prazoB;
+
+
+        if (diferenca !== 0) {
+            return estado.ordenacao === "prazo-asc"
+                ? diferenca
+                : -diferenca;
+        }
+
+
+        return String(a.titulo ?? "")
+            .localeCompare(
+                String(b.titulo ?? ""),
+                "pt-BR"
+            );
     });
 }
 
-// Atualiza a barra de progresso e os indicadores das etapas.
+
 function atualizarProgresso(tarefasVisiveis) {
     const total = estado.tarefas.length;
 
@@ -140,33 +172,48 @@ function atualizarProgresso(tarefasVisiveis) {
         (tarefa) => tarefa.status === "concluida"
     ).length;
 
+
     const percentual = total
         ? Math.round((concluidas / total) * 100)
         : 0;
 
-    const elementoPercentual =
-        document.getElementById("progresso-percentual");
+
+    const percentualElemento =
+        document.getElementById(
+            "progresso-percentual"
+        );
 
     const resumo =
-        document.getElementById("progresso-resumo");
+        document.getElementById(
+            "progresso-resumo"
+        );
 
     const barra =
-        document.getElementById("barra-progresso");
+        document.getElementById(
+            "barra-progresso"
+        );
 
     const preenchimento =
-        document.getElementById("barra-progresso-preenchimento");
+        document.getElementById(
+            "barra-progresso-preenchimento"
+        );
 
-    if (elementoPercentual) {
-        elementoPercentual.textContent = `${percentual}%`;
+
+    if (percentualElemento) {
+        percentualElemento.textContent =
+            `${percentual}%`;
     }
+
 
     if (resumo) {
         resumo.textContent =
-            `${concluidas} de ${total} ` +
-            (total === 1
-                ? "tarefa concluída"
-                : "tarefas concluídas");
+            `${concluidas} de ${total} ${
+                total === 1
+                    ? "tarefa concluída"
+                    : "tarefas concluídas"
+            }`;
     }
+
 
     if (barra) {
         barra.setAttribute(
@@ -175,133 +222,220 @@ function atualizarProgresso(tarefasVisiveis) {
         );
     }
 
+
     if (preenchimento) {
-        preenchimento.style.width = `${percentual}%`;
+        preenchimento.style.width =
+            `${percentual}%`;
     }
 
-    const existemFiltros =
+
+    const filtrosAtivos =
         estado.status !== "todos" ||
         estado.prioridade !== "todas" ||
-        estado.busca.trim() !== "";
+        Boolean(estado.busca.trim());
+
 
     document
         .querySelectorAll("[data-progresso-status]")
-        .forEach((elemento) => {
-            const status = elemento.dataset.progressoStatus;
+        .forEach((item) => {
 
-            const quantidade = tarefasVisiveis.filter(
-                (tarefa) => tarefa.status === status
-            ).length;
+            const status =
+                item.dataset.progressoStatus;
 
-            elemento.textContent =
-                `${quantidade} ` +
-                (quantidade === 1 ? "tarefa" : "tarefas") +
-                (existemFiltros ? " visíveis" : "");
+            const quantidade =
+                tarefasVisiveis.filter(
+                    (tarefa) =>
+                        tarefa.status === status
+                ).length;
+
+
+            item.textContent =
+                `${quantidade} ${
+                    quantidade === 1
+                        ? "tarefa"
+                        : "tarefas"
+                }${
+                    filtrosAtivos
+                        ? " visíveis"
+                        : ""
+                }`;
         });
 }
 
-// Atualiza os chips que representam os filtros ativos.
+
+function atualizarControles() {
+    const busca =
+        document.getElementById(
+            "busca-titulo"
+        );
+
+    const ordenacao =
+        document.getElementById(
+            "ordenacao-prazo"
+        );
+
+    const statusSelecionado =
+        document.querySelector(
+            `input[name="status"][value="${estado.status}"]`
+        );
+
+    const prioridadeSelecionada =
+        document.querySelector(
+            `input[name="prioridade"][value="${estado.prioridade}"]`
+        );
+
+
+    if (busca) {
+        busca.value = estado.busca;
+    }
+
+
+    if (ordenacao) {
+        ordenacao.value =
+            estado.ordenacao;
+    }
+
+
+    document
+        .querySelectorAll('input[name="status"]')
+        .forEach((input) => {
+            input.checked =
+                input === statusSelecionado;
+        });
+
+
+    document
+        .querySelectorAll('input[name="prioridade"]')
+        .forEach((input) => {
+            input.checked =
+                input === prioridadeSelecionada;
+        });
+}
+
+
 function atualizarChips() {
-    const area = document.getElementById("filtros-ativos");
+    const area =
+        document.getElementById(
+            "filtros-ativos"
+        );
+
 
     if (!area) {
         return;
     }
 
+
     area.replaceChildren();
 
+
     const filtros = [];
+
 
     if (estado.busca.trim()) {
         filtros.push([
             "busca",
-            `Busca: ${estado.busca.trim()}`
+            `Busca: ${estado.busca.trim()}`,
         ]);
     }
+
 
     if (estado.status !== "todos") {
         filtros.push([
             "status",
             `Status: ${
-                STATUS_LABELS[estado.status] || estado.status
-            }`
+                STATUS_LABELS[estado.status]
+                ?? estado.status
+            }`,
         ]);
     }
+
 
     if (estado.prioridade !== "todas") {
         filtros.push([
             "prioridade",
-            `Prioridade: ${estado.prioridade}`
+            `Prioridade: ${estado.prioridade}`,
         ]);
     }
 
+
     filtros.forEach(([tipo, texto]) => {
-        const chip = document.createElement("span");
+        const chip =
+            document.createElement("span");
+
         chip.className = "filtro-chip";
 
-        const textoChip = document.createElement("span");
+
+        const textoChip =
+            document.createElement("span");
+
         textoChip.textContent = texto;
 
-        const botao = document.createElement("button");
+
+        const botao =
+            document.createElement("button");
+
         botao.type = "button";
         botao.textContent = "×";
+
         botao.setAttribute(
             "aria-label",
             `Remover filtro ${texto}`
         );
 
-        botao.addEventListener("click", () => {
-            if (tipo === "busca") {
-                estado.busca = "";
 
-                const busca =
-                    document.getElementById("busca-titulo");
+        botao.addEventListener(
+            "click",
+            () => {
 
-                if (busca) {
-                    busca.value = "";
+                if (tipo === "busca") {
+                    estado.busca = "";
                 }
-            }
 
-            if (tipo === "status") {
-                estado.status = "todos";
-
-                const todos =
-                    document.getElementById("status-todos");
-
-                if (todos) {
-                    todos.checked = true;
+                if (tipo === "status") {
+                    estado.status = "todos";
                 }
-            }
 
-            if (tipo === "prioridade") {
-                estado.prioridade = "todas";
-
-                const todas =
-                    document.getElementById("prioridade-todas");
-
-                if (todas) {
-                    todas.checked = true;
+                if (tipo === "prioridade") {
+                    estado.prioridade = "todas";
                 }
+
+
+                atualizarControles();
+                renderizar();
             }
+        );
 
-            renderizar();
-        });
 
-        chip.append(textoChip, botao);
+        chip.append(
+            textoChip,
+            botao
+        );
+
         area.append(chip);
     });
 }
 
-// Atualiza toda a interface usando o estado atual.
-function renderizar() {
-    const tarefasVisiveis = obterTarefasDerivadas();
 
-    renderizarEstado(estado, tarefasVisiveis);
-    atualizarProgresso(tarefasVisiveis);
+function renderizar() {
+    const tarefasVisiveis =
+        obterTarefasDerivadas();
+
+
+    renderizarEstado(
+        estado,
+        tarefasVisiveis
+    );
+
+
+    atualizarProgresso(
+        tarefasVisiveis
+    );
+
+
     atualizarChips();
 }
 
-// Salva as tarefas no armazenamento local.
+
 function persistirTarefas() {
     try {
         localStorage.setItem(
@@ -310,9 +444,10 @@ function persistirTarefas() {
         );
 
         return true;
+
     } catch (erro) {
         console.error(
-            "Falha ao persistir tarefas:",
+            "Falha ao persistir tarefas",
             erro
         );
 
@@ -320,23 +455,31 @@ function persistirTarefas() {
     }
 }
 
-// Recupera tarefas previamente salvas.
+
 function obterTarefasSalvas() {
     try {
-        const dados = localStorage.getItem(CHAVE_TAREFAS);
+        const bruto =
+            localStorage.getItem(
+                CHAVE_TAREFAS
+            );
 
-        if (!dados) {
+
+        if (!bruto) {
             return null;
         }
 
-        const tarefas = JSON.parse(dados);
 
-        return Array.isArray(tarefas)
-            ? tarefas
+        const dados =
+            JSON.parse(bruto);
+
+
+        return Array.isArray(dados)
+            ? dados
             : null;
+
     } catch (erro) {
         console.error(
-            "Falha ao recuperar tarefas:",
+            "Falha ao recuperar tarefas",
             erro
         );
 
@@ -344,234 +487,414 @@ function obterTarefasSalvas() {
     }
 }
 
-// Atualiza uma tarefa existente.
-function salvarTarefa(atualizada) {
-    const indice = estado.tarefas.findIndex(
-        (tarefa) =>
-            String(tarefa.id) === String(atualizada.id)
-    );
 
-    if (indice === -1) {
-        mostrarAviso(
-            "Não foi possível encontrar essa tarefa.",
-            "erro"
+function salvarTarefa(atualizada) {
+    const indice =
+        estado.tarefas.findIndex(
+            (tarefa) =>
+                String(tarefa.id) ===
+                String(atualizada.id)
         );
 
-        return false;
+
+    if (indice < 0) {
+        return;
     }
 
-    const tarefaAnterior = estado.tarefas[indice];
 
     estado.tarefas[indice] = {
-        ...tarefaAnterior,
-        ...atualizada
+        ...estado.tarefas[indice],
+        ...atualizada,
     };
 
-    const salvou = persistirTarefas();
+
+    const salvou =
+        persistirTarefas();
+
 
     renderizar();
+
 
     mostrarAviso(
         salvou
             ? "Alterações salvas neste navegador."
             : "Alterações aplicadas, mas não foi possível salvá-las neste navegador.",
-        salvou ? "sucesso" : "erro"
+        salvou
+            ? "sucesso"
+            : "erro"
     );
-
-    // A alteração foi aplicada em memória.
-    return true;
 }
 
-// Exclui uma tarefa existente.
-function excluirTarefa(id) {
-    const indice = estado.tarefas.findIndex(
-        (tarefa) => String(tarefa.id) === String(id)
-    );
 
-    if (indice === -1) {
-        mostrarAviso(
-            "Não foi possível encontrar essa tarefa.",
-            "erro"
+function excluirTarefa(id) {
+    const quantidadeAnterior =
+        estado.tarefas.length;
+
+
+    estado.tarefas =
+        estado.tarefas.filter(
+            (tarefa) =>
+                String(tarefa.id) !==
+                String(id)
         );
 
-        return false;
+
+    if (
+        quantidadeAnterior ===
+        estado.tarefas.length
+    ) {
+        return;
     }
 
-    estado.tarefas.splice(indice, 1);
 
-    const salvou = persistirTarefas();
+    const salvou =
+        persistirTarefas();
+
 
     renderizar();
+
 
     mostrarAviso(
         salvou
             ? "Tarefa excluída."
-            : "Tarefa removida da tela, mas não foi possível salvá-la neste navegador.",
-        salvou ? "sucesso" : "erro"
+            : "Tarefa removida da tela, mas não foi possível salvar.",
+        salvou
+            ? "sucesso"
+            : "erro"
     );
-
-    return true;
 }
 
-// Instala os eventos dos filtros.
+
 function instalarEventosFiltros() {
-    const form = document.getElementById("form-filtros");
-    const busca = document.getElementById("busca-titulo");
+    const form =
+        document.getElementById(
+            "form-filtros"
+        );
+
+    const busca =
+        document.getElementById(
+            "busca-titulo"
+        );
+
     const ordenacao =
-        document.getElementById("ordenacao-prazo");
-    const limpar = document.getElementById("btn-limpar");
+        document.getElementById(
+            "ordenacao-prazo"
+        );
+
+    const limpar =
+        document.getElementById(
+            "btn-limpar"
+        );
+
+    const botaoFiltros =
+        document.getElementById(
+            "btn-filtros-mobile"
+        );
+
+    const painelFiltros =
+        document.getElementById(
+            "painel-filtros-avancados"
+        );
+
 
     if (!form) {
         return;
     }
 
-    form.addEventListener("submit", (evento) => {
-        evento.preventDefault();
-    });
 
-    busca?.addEventListener("input", (evento) => {
-        estado.busca = evento.target.value;
-        renderizar();
-    });
-
-    form.addEventListener("change", (evento) => {
-        const controle = evento.target;
-
-        if (controle.name === "status") {
-            estado.status = controle.value;
-        } else if (controle.name === "prioridade") {
-            estado.prioridade = controle.value;
-        } else if (controle.name === "ordenacao") {
-            estado.ordenacao = controle.value;
-        } else {
-            return;
+    form.addEventListener(
+        "submit",
+        (evento) => {
+            evento.preventDefault();
         }
+    );
 
-        renderizar();
-    });
 
-    limpar?.addEventListener("click", () => {
-        estado.busca = "";
-        estado.status = "todos";
-        estado.prioridade = "todas";
-        estado.ordenacao = "prazo-asc";
+    busca?.addEventListener(
+        "input",
+        (evento) => {
+            estado.busca =
+                evento.target.value;
 
-        if (busca) {
-            busca.value = "";
+            renderizar();
         }
+    );
 
-        if (ordenacao) {
-            ordenacao.value = "prazo-asc";
+
+    form.addEventListener(
+        "change",
+        (evento) => {
+            const controle =
+                evento.target;
+
+
+            if (
+                controle.name ===
+                "status"
+            ) {
+                estado.status =
+                    controle.value;
+
+            } else if (
+                controle.name ===
+                "prioridade"
+            ) {
+                estado.prioridade =
+                    controle.value;
+
+            } else if (
+                controle.name ===
+                "ordenacao"
+            ) {
+                estado.ordenacao =
+                    controle.value;
+
+            } else {
+                return;
+            }
+
+
+            renderizar();
         }
+    );
 
-        const statusTodos =
-            document.getElementById("status-todos");
 
-        const prioridadeTodas =
-            document.getElementById("prioridade-todas");
+    botaoFiltros?.addEventListener(
+        "click",
+        () => {
 
-        if (statusTodos) {
-            statusTodos.checked = true;
+            if (!painelFiltros) {
+                return;
+            }
+
+
+            const aberto =
+                painelFiltros.classList.toggle(
+                    "aberto"
+                );
+
+
+            botaoFiltros.setAttribute(
+                "aria-expanded",
+                String(aberto)
+            );
+
+
+            botaoFiltros.classList.toggle(
+                "ativo",
+                aberto
+            );
         }
+    );
 
-        if (prioridadeTodas) {
-            prioridadeTodas.checked = true;
+
+    limpar?.addEventListener(
+        "click",
+        () => {
+
+            estado.busca = "";
+            estado.status = "todos";
+            estado.prioridade = "todas";
+            estado.ordenacao = "prazo-asc";
+
+
+            atualizarControles();
+
+
+            renderizar();
+
+
+            busca?.focus();
         }
-
-        renderizar();
-        busca?.focus();
-    });
+    );
 }
 
-// Instala a navegação lateral e as abas para celular.
-function instalarNavegacaoMobile() {
-    const menu = document.getElementById("btn-menu");
-    const sidebar = document.getElementById("sidebar");
-    const sombra = document.getElementById("sidebar-sombra");
 
-    const fechar = () => {
-        sidebar?.classList.remove("aberta");
-        sombra?.classList.remove("visivel");
+function instalarNavegacaoMobile() {
+    const menu =
+        document.getElementById(
+            "btn-menu"
+        );
+
+    const sidebar =
+        document.getElementById(
+            "sidebar"
+        );
+
+    const sombra =
+        document.getElementById(
+            "sidebar-sombra"
+        );
+
+
+    const fecharMenu = () => {
+
+        sidebar?.classList.remove(
+            "aberta"
+        );
+
+        sombra?.classList.remove(
+            "visivel"
+        );
+
 
         if (sombra) {
             sombra.hidden = true;
         }
 
-        menu?.setAttribute("aria-expanded", "false");
-        menu?.setAttribute("aria-label", "Abrir menu");
+
+        menu?.setAttribute(
+            "aria-expanded",
+            "false"
+        );
+
+        menu?.setAttribute(
+            "aria-label",
+            "Abrir menu"
+        );
     };
 
-    menu?.addEventListener("click", () => {
-        if (!sidebar) {
-            return;
+
+    menu?.addEventListener(
+        "click",
+        () => {
+
+            if (!sidebar) {
+                return;
+            }
+
+
+            const aberto =
+                sidebar.classList.toggle(
+                    "aberta"
+                );
+
+
+            if (sombra) {
+                sombra.hidden =
+                    !aberto;
+
+                sombra.classList.toggle(
+                    "visivel",
+                    aberto
+                );
+            }
+
+
+            menu.setAttribute(
+                "aria-expanded",
+                String(aberto)
+            );
+
+            menu.setAttribute(
+                "aria-label",
+                aberto
+                    ? "Fechar menu"
+                    : "Abrir menu"
+            );
         }
+    );
 
-        const aberto = sidebar.classList.toggle("aberta");
 
-        if (sombra) {
-            sombra.hidden = !aberto;
-            sombra.classList.toggle("visivel", aberto);
+    sombra?.addEventListener(
+        "click",
+        fecharMenu
+    );
+
+
+    sidebar
+        ?.querySelectorAll("a")
+        .forEach((link) => {
+            link.addEventListener(
+                "click",
+                fecharMenu
+            );
+        });
+
+
+    document.addEventListener(
+        "keydown",
+        (evento) => {
+
+            if (
+                evento.key ===
+                "Escape"
+            ) {
+                fecharMenu();
+            }
         }
+    );
 
-        menu.setAttribute(
-            "aria-expanded",
-            String(aberto)
-        );
 
-        menu.setAttribute(
-            "aria-label",
-            aberto ? "Fechar menu" : "Abrir menu"
-        );
-    });
-
-    sombra?.addEventListener("click", fechar);
-
-    sidebar?.querySelectorAll("a").forEach((link) => {
-        link.addEventListener("click", fechar);
-    });
-
-    // Abas que alternam as colunas no celular.
     const abas = [
-        ...document.querySelectorAll("[data-aba]")
+        ...document.querySelectorAll(
+            "[data-aba]"
+        ),
     ];
 
     const colunas = [
-        ...document.querySelectorAll("[data-coluna]")
+        ...document.querySelectorAll(
+            "[data-coluna]"
+        ),
     ];
 
-    const ativarAba = (status) => {
-        abas.forEach((aba) => {
-            const ativa = aba.dataset.aba === status;
 
-            aba.classList.toggle("ativa", ativa);
+    const ativarAba = (status) => {
+
+        abas.forEach((aba) => {
+
+            const ativa =
+                aba.dataset.aba ===
+                status;
+
+
+            aba.classList.toggle(
+                "ativa",
+                ativa
+            );
+
+
             aba.setAttribute(
                 "aria-selected",
                 String(ativa)
             );
         });
 
+
         colunas.forEach((coluna) => {
+
             coluna.classList.toggle(
                 "coluna--ativa",
-                coluna.dataset.coluna === status
+                coluna.dataset.coluna ===
+                status
             );
         });
     };
 
+
     abas.forEach((aba) => {
-        aba.addEventListener("click", () => {
-            ativarAba(aba.dataset.aba);
-        });
+
+        aba.addEventListener(
+            "click",
+            () => {
+                ativarAba(
+                    aba.dataset.aba
+                );
+            }
+        );
     });
 
-    if (abas.length > 0) {
-        ativarAba(abas[0].dataset.aba);
-    }
+
+    ativarAba("a-fazer");
 }
 
-// Inicializa o gerenciador.
+
 async function iniciarApp() {
-    const quadro = document.querySelector("[data-quadro]");
+    const quadro =
+        document.querySelector(
+            "[data-quadro]"
+        );
+
 
     if (quadro) {
         instalarEventosDoQuadro(
@@ -582,30 +905,53 @@ async function iniciarApp() {
         );
     }
 
+
     instalarEventosFiltros();
     instalarNavegacaoMobile();
 
+
     estado.carregamento = true;
+
     renderizar();
 
+
     try {
-        const originais = await carregarTarefas();
+
+        const originais =
+            await carregarTarefas();
+
+
+        const salvas =
+            obterTarefasSalvas();
+
 
         estado.tarefas =
-            obterTarefasSalvas() ?? originais;
+            salvas ?? originais;
+
+
+        estado.erro = null;
+
     } catch (erro) {
+
         estado.erro = erro;
 
-        const salvas = obterTarefasSalvas();
+
+        const salvas =
+            obterTarefasSalvas();
+
 
         if (salvas) {
             estado.tarefas = salvas;
             estado.erro = null;
         }
+
     } finally {
+
         estado.carregamento = false;
+
         renderizar();
     }
 }
+
 
 iniciarApp();
