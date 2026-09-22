@@ -2,17 +2,14 @@ import { carregarTarefas } from "./api.js";
 import { renderizarEstado } from "./estados.js";
 import { instalarEventosDoQuadro } from "./renderizacao.js";
 
-
 const CHAVE_TAREFAS = "gerenciador-academico-tarefas";
-
 
 const STATUS_LABELS = {
     "a-fazer": "A Fazer",
     "em-andamento": "Em Andamento",
     "em-revisao": "Em Revisão",
-    "concluida": "Concluída",
+    concluida: "Concluída"
 };
-
 
 const estado = {
     tarefas: [],
@@ -21,21 +18,21 @@ const estado = {
     prioridade: "todas",
     ordenacao: "prazo-asc",
     carregamento: true,
-    erro: null,
+    erro: null
 };
-
 
 let temporizadorAviso;
 
+/* =========================================================
+   AVISOS
+   ========================================================= */
 
 function mostrarAviso(mensagem, tipo = "sucesso") {
     let aviso = document.getElementById("aviso-acoes");
 
     if (!aviso) {
         aviso = document.createElement("div");
-
         aviso.id = "aviso-acoes";
-
         aviso.setAttribute("role", "status");
         aviso.setAttribute("aria-live", "polite");
 
@@ -51,7 +48,7 @@ function mostrarAviso(mensagem, tipo = "sucesso") {
             fontWeight: "700",
             background: "#fff",
             color: "#20243a",
-            border: "1px solid #dfe4ef",
+            border: "1px solid #dfe4ef"
         });
 
         document.body.append(aviso);
@@ -73,15 +70,26 @@ function mostrarAviso(mensagem, tipo = "sucesso") {
     }, 3500);
 }
 
+/* =========================================================
+   PRAZOS
+   ========================================================= */
 
-function tarefaEstaAtrasada(tarefa) {
-    if (!tarefa?.prazo || tarefa.status === "concluida") {
-        return false;
+function obterValorPrazo(prazo) {
+    if (typeof prazo !== "string" || !prazo.trim()) {
+        return null;
     }
 
-    const prazo = new Date(`${tarefa.prazo}T00:00:00`);
+    const data = new Date(`${prazo}T00:00:00`);
 
-    if (Number.isNaN(prazo.getTime())) {
+    if (Number.isNaN(data.getTime())) {
+        return null;
+    }
+
+    return data.getTime();
+}
+
+function tarefaEstaAtrasada(tarefa) {
+    if (!tarefa.prazo || tarefa.status === "concluida") {
         return false;
     }
 
@@ -89,81 +97,115 @@ function tarefaEstaAtrasada(tarefa) {
 
     hoje.setHours(0, 0, 0, 0);
 
-    return prazo < hoje;
+    const prazo = new Date(`${tarefa.prazo}T00:00:00`);
+
+    return (
+        !Number.isNaN(prazo.getTime()) &&
+        prazo < hoje
+    );
 }
 
+/* =========================================================
+   FILTROS E ORDENAÇÃO
+   ========================================================= */
 
 function obterTarefasDerivadas() {
     const termo = estado.busca
         .trim()
         .toLocaleLowerCase("pt-BR");
 
-    const filtradas = estado.tarefas
-        .filter((tarefa) => {
-            const titulo = String(
-                tarefa.titulo ?? ""
-            ).toLocaleLowerCase("pt-BR");
+    const filtradas = estado.tarefas.filter((tarefa) =>
+        String(tarefa.titulo ?? "")
+            .toLocaleLowerCase("pt-BR")
+            .includes(termo) &&
+        (
+            estado.status === "todos" ||
+            tarefa.status === estado.status
+        ) &&
+        (
+            estado.prioridade === "todas" ||
+            tarefa.prioridade === estado.prioridade
+        )
+    );
 
-            const correspondeBusca =
-                titulo.includes(termo);
+    const tarefasComPrazo = filtradas.map((tarefa) => ({
+        ...tarefa,
+        atrasada: tarefaEstaAtrasada(tarefa)
+    }));
 
-            const correspondeStatus =
-                estado.status === "todos" ||
-                tarefa.status === estado.status;
+    return [...tarefasComPrazo].sort((a, b) => {
+        const valorA = obterValorPrazo(a.prazo);
+        const valorB = obterValorPrazo(b.prazo);
 
-            const correspondePrioridade =
-                estado.prioridade === "todas" ||
-                tarefa.prioridade === estado.prioridade;
-
-            return (
-                correspondeBusca &&
-                correspondeStatus &&
-                correspondePrioridade
-            );
-        })
-        .map((tarefa) => ({
-            ...tarefa,
-            atrasada: tarefaEstaAtrasada(tarefa),
-        }));
-
-
-    return [...filtradas].sort((a, b) => {
-        const interpretarPrazo = (data) => {
-            if (!data) {
-                return Number.POSITIVE_INFINITY;
-            }
-
-            const valor = Date.parse(
-                `${data}T00:00:00`
-            );
-
-            return Number.isNaN(valor)
+        const prazoA =
+            valorA === null
                 ? Number.POSITIVE_INFINITY
-                : valor;
-        };
+                : valorA;
 
+        const prazoB =
+            valorB === null
+                ? Number.POSITIVE_INFINITY
+                : valorB;
 
-        const prazoA = interpretarPrazo(a.prazo);
-        const prazoB = interpretarPrazo(b.prazo);
+        const delta = prazoA - prazoB;
 
-        const diferenca = prazoA - prazoB;
-
-
-        if (diferenca !== 0) {
-            return estado.ordenacao === "prazo-asc"
-                ? diferenca
-                : -diferenca;
-        }
-
-
-        return String(a.titulo ?? "")
-            .localeCompare(
-                String(b.titulo ?? ""),
-                "pt-BR"
-            );
+        return estado.ordenacao === "prazo-asc"
+            ? delta
+            : -delta;
     });
 }
 
+/* =========================================================
+   CONTADOR DE FILTROS
+   ========================================================= */
+
+function obterQuantidadeFiltrosAtivos() {
+    let quantidade = 0;
+
+    if (estado.busca.trim()) {
+        quantidade += 1;
+    }
+
+    if (estado.status !== "todos") {
+        quantidade += 1;
+    }
+
+    if (estado.prioridade !== "todas") {
+        quantidade += 1;
+    }
+
+    return quantidade;
+}
+
+function atualizarContadorFiltros() {
+    const contador =
+        document.getElementById("contador-filtros");
+
+    const botao =
+        document.getElementById("btn-filtros-mobile");
+
+    if (!contador || !botao) {
+        return;
+    }
+
+    const quantidade =
+        obterQuantidadeFiltrosAtivos();
+
+    contador.textContent = String(quantidade);
+
+    contador.hidden = quantidade === 0;
+
+    botao.setAttribute(
+        "aria-label",
+        quantidade > 0
+            ? `Abrir filtros, ${quantidade} filtro${quantidade === 1 ? "" : "s"} ativo${quantidade === 1 ? "" : "s"}`
+            : "Abrir filtros"
+    );
+}
+
+/* =========================================================
+   PROGRESSO
+   ========================================================= */
 
 function atualizarProgresso(tarefasVisiveis) {
     const total = estado.tarefas.length;
@@ -172,13 +214,11 @@ function atualizarProgresso(tarefasVisiveis) {
         (tarefa) => tarefa.status === "concluida"
     ).length;
 
-
     const percentual = total
         ? Math.round((concluidas / total) * 100)
         : 0;
 
-
-    const percentualElemento =
+    const elementoPercentual =
         document.getElementById(
             "progresso-percentual"
         );
@@ -198,22 +238,20 @@ function atualizarProgresso(tarefasVisiveis) {
             "barra-progresso-preenchimento"
         );
 
-
-    if (percentualElemento) {
-        percentualElemento.textContent =
+    if (elementoPercentual) {
+        elementoPercentual.textContent =
             `${percentual}%`;
     }
 
-
     if (resumo) {
         resumo.textContent =
-            `${concluidas} de ${total} ${
+            `${concluidas} de ${total} ` +
+            (
                 total === 1
                     ? "tarefa concluída"
                     : "tarefas concluídas"
-            }`;
+            );
     }
-
 
     if (barra) {
         barra.setAttribute(
@@ -222,25 +260,23 @@ function atualizarProgresso(tarefasVisiveis) {
         );
     }
 
-
     if (preenchimento) {
         preenchimento.style.width =
             `${percentual}%`;
     }
 
-
-    const filtrosAtivos =
+    const existemFiltros =
         estado.status !== "todos" ||
         estado.prioridade !== "todas" ||
-        Boolean(estado.busca.trim());
-
+        estado.busca.trim() !== "";
 
     document
-        .querySelectorAll("[data-progresso-status]")
-        .forEach((item) => {
-
+        .querySelectorAll(
+            "[data-progresso-status]"
+        )
+        .forEach((elemento) => {
             const status =
-                item.dataset.progressoStatus;
+                elemento.dataset.progressoStatus;
 
             const quantidade =
                 tarefasVisiveis.filter(
@@ -248,70 +284,24 @@ function atualizarProgresso(tarefasVisiveis) {
                         tarefa.status === status
                 ).length;
 
-
-            item.textContent =
-                `${quantidade} ${
+            elemento.textContent =
+                `${quantidade} ` +
+                (
                     quantidade === 1
                         ? "tarefa"
                         : "tarefas"
-                }${
-                    filtrosAtivos
+                ) +
+                (
+                    existemFiltros
                         ? " visíveis"
                         : ""
-                }`;
+                );
         });
 }
 
-
-function atualizarControles() {
-    const busca =
-        document.getElementById(
-            "busca-titulo"
-        );
-
-    const ordenacao =
-        document.getElementById(
-            "ordenacao-prazo"
-        );
-
-    const statusSelecionado =
-        document.querySelector(
-            `input[name="status"][value="${estado.status}"]`
-        );
-
-    const prioridadeSelecionada =
-        document.querySelector(
-            `input[name="prioridade"][value="${estado.prioridade}"]`
-        );
-
-
-    if (busca) {
-        busca.value = estado.busca;
-    }
-
-
-    if (ordenacao) {
-        ordenacao.value =
-            estado.ordenacao;
-    }
-
-
-    document
-        .querySelectorAll('input[name="status"]')
-        .forEach((input) => {
-            input.checked =
-                input === statusSelecionado;
-        });
-
-
-    document
-        .querySelectorAll('input[name="prioridade"]')
-        .forEach((input) => {
-            input.checked =
-                input === prioridadeSelecionada;
-        });
-}
-
+/* =========================================================
+   CHIPS DE FILTROS
+   ========================================================= */
 
 function atualizarChips() {
     const area =
@@ -319,44 +309,37 @@ function atualizarChips() {
             "filtros-ativos"
         );
 
-
     if (!area) {
         return;
     }
 
-
     area.replaceChildren();
 
-
     const filtros = [];
-
 
     if (estado.busca.trim()) {
         filtros.push([
             "busca",
-            `Busca: ${estado.busca.trim()}`,
+            `Busca: ${estado.busca.trim()}`
         ]);
     }
-
 
     if (estado.status !== "todos") {
         filtros.push([
             "status",
             `Status: ${
-                STATUS_LABELS[estado.status]
-                ?? estado.status
-            }`,
+                STATUS_LABELS[estado.status] ||
+                estado.status
+            }`
         ]);
     }
-
 
     if (estado.prioridade !== "todas") {
         filtros.push([
             "prioridade",
-            `Prioridade: ${estado.prioridade}`,
+            `Prioridade: ${estado.prioridade}`
         ]);
     }
-
 
     filtros.forEach(([tipo, texto]) => {
         const chip =
@@ -364,12 +347,10 @@ function atualizarChips() {
 
         chip.className = "filtro-chip";
 
-
         const textoChip =
             document.createElement("span");
 
         textoChip.textContent = texto;
-
 
         const botao =
             document.createElement("button");
@@ -382,29 +363,48 @@ function atualizarChips() {
             `Remover filtro ${texto}`
         );
 
+        botao.addEventListener("click", () => {
+            if (tipo === "busca") {
+                estado.busca = "";
 
-        botao.addEventListener(
-            "click",
-            () => {
+                const busca =
+                    document.getElementById(
+                        "busca-titulo"
+                    );
 
-                if (tipo === "busca") {
-                    estado.busca = "";
+                if (busca) {
+                    busca.value = "";
                 }
-
-                if (tipo === "status") {
-                    estado.status = "todos";
-                }
-
-                if (tipo === "prioridade") {
-                    estado.prioridade = "todas";
-                }
-
-
-                atualizarControles();
-                renderizar();
             }
-        );
 
+            if (tipo === "status") {
+                estado.status = "todos";
+
+                const todos =
+                    document.getElementById(
+                        "status-todos"
+                    );
+
+                if (todos) {
+                    todos.checked = true;
+                }
+            }
+
+            if (tipo === "prioridade") {
+                estado.prioridade = "todas";
+
+                const todas =
+                    document.getElementById(
+                        "prioridade-todas"
+                    );
+
+                if (todas) {
+                    todas.checked = true;
+                }
+            }
+
+            renderizar();
+        });
 
         chip.append(
             textoChip,
@@ -415,26 +415,31 @@ function atualizarChips() {
     });
 }
 
+/* =========================================================
+   RENDERIZAÇÃO GERAL
+   ========================================================= */
 
 function renderizar() {
     const tarefasVisiveis =
         obterTarefasDerivadas();
-
 
     renderizarEstado(
         estado,
         tarefasVisiveis
     );
 
-
     atualizarProgresso(
         tarefasVisiveis
     );
 
-
     atualizarChips();
+
+    atualizarContadorFiltros();
 }
 
+/* =========================================================
+   ARMAZENAMENTO LOCAL
+   ========================================================= */
 
 function persistirTarefas() {
     try {
@@ -444,10 +449,9 @@ function persistirTarefas() {
         );
 
         return true;
-
     } catch (erro) {
         console.error(
-            "Falha ao persistir tarefas",
+            "Falha ao persistir tarefas:",
             erro
         );
 
@@ -455,31 +459,26 @@ function persistirTarefas() {
     }
 }
 
-
 function obterTarefasSalvas() {
     try {
-        const bruto =
+        const dados =
             localStorage.getItem(
                 CHAVE_TAREFAS
             );
 
-
-        if (!bruto) {
+        if (!dados) {
             return null;
         }
 
+        const tarefas =
+            JSON.parse(dados);
 
-        const dados =
-            JSON.parse(bruto);
-
-
-        return Array.isArray(dados)
-            ? dados
+        return Array.isArray(tarefas)
+            ? tarefas
             : null;
-
     } catch (erro) {
         console.error(
-            "Falha ao recuperar tarefas",
+            "Falha ao recuperar tarefas:",
             erro
         );
 
@@ -487,6 +486,9 @@ function obterTarefasSalvas() {
     }
 }
 
+/* =========================================================
+   EDIÇÃO
+   ========================================================= */
 
 function salvarTarefa(atualizada) {
     const indice =
@@ -496,24 +498,27 @@ function salvarTarefa(atualizada) {
                 String(atualizada.id)
         );
 
+    if (indice === -1) {
+        mostrarAviso(
+            "Não foi possível encontrar essa tarefa.",
+            "erro"
+        );
 
-    if (indice < 0) {
-        return;
+        return false;
     }
 
+    const tarefaAnterior =
+        estado.tarefas[indice];
 
     estado.tarefas[indice] = {
-        ...estado.tarefas[indice],
-        ...atualizada,
+        ...tarefaAnterior,
+        ...atualizada
     };
-
 
     const salvou =
         persistirTarefas();
 
-
     renderizar();
-
 
     mostrarAviso(
         salvou
@@ -523,47 +528,155 @@ function salvarTarefa(atualizada) {
             ? "sucesso"
             : "erro"
     );
+
+    return true;
 }
 
-
 function excluirTarefa(id) {
-    const quantidadeAnterior =
-        estado.tarefas.length;
-
-
-    estado.tarefas =
-        estado.tarefas.filter(
+    const indice =
+        estado.tarefas.findIndex(
             (tarefa) =>
-                String(tarefa.id) !==
+                String(tarefa.id) ===
                 String(id)
         );
 
+    if (indice === -1) {
+        mostrarAviso(
+            "Não foi possível encontrar essa tarefa.",
+            "erro"
+        );
 
-    if (
-        quantidadeAnterior ===
-        estado.tarefas.length
-    ) {
-        return;
+        return false;
     }
 
+    estado.tarefas.splice(indice, 1);
 
     const salvou =
         persistirTarefas();
 
-
     renderizar();
-
 
     mostrarAviso(
         salvou
             ? "Tarefa excluída."
-            : "Tarefa removida da tela, mas não foi possível salvar.",
+            : "Tarefa removida da tela, mas não foi possível salvá-la neste navegador.",
         salvou
             ? "sucesso"
             : "erro"
     );
+
+    return true;
 }
 
+/* =========================================================
+   PAINEL DE FILTROS
+   ========================================================= */
+
+function instalarPainelFiltros() {
+    const botao =
+        document.getElementById(
+            "btn-filtros-mobile"
+        );
+
+    const painel =
+        document.getElementById(
+            "painel-filtros-opcoes"
+        );
+
+    if (!botao || !painel) {
+        return;
+    }
+
+    const fechar = () => {
+        painel.hidden = true;
+
+        botao.setAttribute(
+            "aria-expanded",
+            "false"
+        );
+
+        botao.classList.remove("ativo");
+    };
+
+    const alternar = () => {
+        const aberto =
+            painel.hidden;
+
+        painel.hidden = !aberto;
+
+        botao.setAttribute(
+            "aria-expanded",
+            String(aberto)
+        );
+
+        botao.classList.toggle(
+            "ativo",
+            aberto
+        );
+    };
+
+    botao.addEventListener(
+        "click",
+        (evento) => {
+            evento.stopPropagation();
+            alternar();
+        }
+    );
+
+    painel.addEventListener(
+        "click",
+        (evento) => {
+            evento.stopPropagation();
+        }
+    );
+
+    document.addEventListener(
+        "click",
+        () => {
+            if (!painel.hidden) {
+                fechar();
+            }
+        }
+    );
+
+    /*
+     * Mantém o painel aberto quando o usuário
+     * altera os filtros dentro dele.
+     */
+    painel.addEventListener(
+        "change",
+        () => {
+            painel.hidden = false;
+
+            botao.setAttribute(
+                "aria-expanded",
+                "true"
+            );
+
+            botao.classList.add("ativo");
+        }
+    );
+
+    /*
+     * Esc fecha o painel.
+     */
+    document.addEventListener(
+        "keydown",
+        (evento) => {
+            if (
+                evento.key === "Escape" &&
+                !painel.hidden
+            ) {
+                fechar();
+                botao.focus();
+            }
+        }
+    );
+}
+
+/* =========================================================
+   FILTROS
+   ========================================================= */
 
 function instalarEventosFiltros() {
     const form =
@@ -586,21 +699,9 @@ function instalarEventosFiltros() {
             "btn-limpar"
         );
 
-    const botaoFiltros =
-        document.getElementById(
-            "btn-filtros-mobile"
-        );
-
-    const painelFiltros =
-        document.getElementById(
-            "painel-filtros-avancados"
-        );
-
-
     if (!form) {
         return;
     }
-
 
     form.addEventListener(
         "submit",
@@ -608,7 +709,6 @@ function instalarEventosFiltros() {
             evento.preventDefault();
         }
     );
-
 
     busca?.addEventListener(
         "input",
@@ -620,13 +720,11 @@ function instalarEventosFiltros() {
         }
     );
 
-
     form.addEventListener(
         "change",
         (evento) => {
             const controle =
                 evento.target;
-
 
             if (
                 controle.name ===
@@ -634,81 +732,71 @@ function instalarEventosFiltros() {
             ) {
                 estado.status =
                     controle.value;
-
             } else if (
                 controle.name ===
                 "prioridade"
             ) {
                 estado.prioridade =
                     controle.value;
-
             } else if (
                 controle.name ===
                 "ordenacao"
             ) {
                 estado.ordenacao =
                     controle.value;
-
             } else {
                 return;
             }
-
 
             renderizar();
         }
     );
 
-
-    botaoFiltros?.addEventListener(
-        "click",
-        () => {
-
-            if (!painelFiltros) {
-                return;
-            }
-
-
-            const aberto =
-                painelFiltros.classList.toggle(
-                    "aberto"
-                );
-
-
-            botaoFiltros.setAttribute(
-                "aria-expanded",
-                String(aberto)
-            );
-
-
-            botaoFiltros.classList.toggle(
-                "ativo",
-                aberto
-            );
-        }
-    );
-
-
     limpar?.addEventListener(
         "click",
         () => {
-
             estado.busca = "";
             estado.status = "todos";
             estado.prioridade = "todas";
             estado.ordenacao = "prazo-asc";
 
+            if (busca) {
+                busca.value = "";
+            }
 
-            atualizarControles();
+            if (ordenacao) {
+                ordenacao.value =
+                    "prazo-asc";
+            }
 
+            const statusTodos =
+                document.getElementById(
+                    "status-todos"
+                );
+
+            const prioridadeTodas =
+                document.getElementById(
+                    "prioridade-todas"
+                );
+
+            if (statusTodos) {
+                statusTodos.checked = true;
+            }
+
+            if (prioridadeTodas) {
+                prioridadeTodas.checked = true;
+            }
 
             renderizar();
-
 
             busca?.focus();
         }
     );
 }
 
+/* =========================================================
+   NAVEGAÇÃO MOBILE
+   ========================================================= */
 
 function instalarNavegacaoMobile() {
     const menu =
@@ -726,9 +814,7 @@ function instalarNavegacaoMobile() {
             "sidebar-sombra"
         );
 
-
-    const fecharMenu = () => {
-
+    const fechar = () => {
         sidebar?.classList.remove(
             "aberta"
         );
@@ -737,11 +823,9 @@ function instalarNavegacaoMobile() {
             "visivel"
         );
 
-
         if (sombra) {
             sombra.hidden = true;
         }
-
 
         menu?.setAttribute(
             "aria-expanded",
@@ -754,21 +838,17 @@ function instalarNavegacaoMobile() {
         );
     };
 
-
     menu?.addEventListener(
         "click",
         () => {
-
             if (!sidebar) {
                 return;
             }
-
 
             const aberto =
                 sidebar.classList.toggle(
                     "aberta"
                 );
-
 
             if (sombra) {
                 sombra.hidden =
@@ -779,7 +859,6 @@ function instalarNavegacaoMobile() {
                     aberto
                 );
             }
-
 
             menu.setAttribute(
                 "aria-expanded",
@@ -795,64 +874,44 @@ function instalarNavegacaoMobile() {
         }
     );
 
-
     sombra?.addEventListener(
         "click",
-        fecharMenu
+        fechar
     );
-
 
     sidebar
         ?.querySelectorAll("a")
         .forEach((link) => {
             link.addEventListener(
                 "click",
-                fecharMenu
+                fechar
             );
         });
 
-
-    document.addEventListener(
-        "keydown",
-        (evento) => {
-
-            if (
-                evento.key ===
-                "Escape"
-            ) {
-                fecharMenu();
-            }
-        }
-    );
-
-
+    /*
+     * Abas do quadro no celular.
+     */
     const abas = [
         ...document.querySelectorAll(
             "[data-aba]"
-        ),
+        )
     ];
 
     const colunas = [
         ...document.querySelectorAll(
             "[data-coluna]"
-        ),
+        )
     ];
 
-
     const ativarAba = (status) => {
-
         abas.forEach((aba) => {
-
             const ativa =
-                aba.dataset.aba ===
-                status;
-
+                aba.dataset.aba === status;
 
             aba.classList.toggle(
                 "ativa",
                 ativa
             );
-
 
             aba.setAttribute(
                 "aria-selected",
@@ -860,20 +919,15 @@ function instalarNavegacaoMobile() {
             );
         });
 
-
         colunas.forEach((coluna) => {
-
             coluna.classList.toggle(
                 "coluna--ativa",
-                coluna.dataset.coluna ===
-                status
+                coluna.dataset.coluna === status
             );
         });
     };
 
-
     abas.forEach((aba) => {
-
         aba.addEventListener(
             "click",
             () => {
@@ -884,17 +938,22 @@ function instalarNavegacaoMobile() {
         );
     });
 
-
-    ativarAba("a-fazer");
+    if (abas.length > 0) {
+        ativarAba(
+            abas[0].dataset.aba
+        );
+    }
 }
 
+/* =========================================================
+   INICIALIZAÇÃO
+   ========================================================= */
 
 async function iniciarApp() {
     const quadro =
         document.querySelector(
             "[data-quadro]"
         );
-
 
     if (quadro) {
         instalarEventosDoQuadro(
@@ -905,53 +964,36 @@ async function iniciarApp() {
         );
     }
 
-
     instalarEventosFiltros();
+    instalarPainelFiltros();
     instalarNavegacaoMobile();
-
 
     estado.carregamento = true;
 
     renderizar();
 
-
     try {
-
         const originais =
             await carregarTarefas();
 
-
-        const salvas =
-            obterTarefasSalvas();
-
-
         estado.tarefas =
-            salvas ?? originais;
-
-
-        estado.erro = null;
-
+            obterTarefasSalvas() ??
+            originais;
     } catch (erro) {
-
         estado.erro = erro;
 
-
         const salvas =
             obterTarefasSalvas();
-
 
         if (salvas) {
             estado.tarefas = salvas;
             estado.erro = null;
         }
-
     } finally {
-
         estado.carregamento = false;
 
         renderizar();
     }
 }
-
 
 iniciarApp();
