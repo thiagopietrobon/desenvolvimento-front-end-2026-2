@@ -68,7 +68,9 @@ function criarCampo(rotulo, nome, tipo = "text", valor = "") {
  */
 function criarGrupoSegmentado(rotulo, nome, opcoes, valorAtual) {
     const campo = document.createElement("fieldset");
-    campo.className = "modal-tarefa-campo modal-tarefa-segmentado";
+
+    campo.className =
+        `modal-tarefa-campo modal-tarefa-segmentado modal-tarefa-segmentado--${nome}`;
 
     const legenda = document.createElement("legend");
     legenda.textContent = rotulo;
