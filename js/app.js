@@ -84,54 +84,51 @@ function obterValorPrazo(prazo) {
 }
 
 // Aplica busca, filtros e ordenação.
+function tarefaEstaAtrasada(tarefa) {
+    if (!tarefa.prazo || tarefa.status === "concluida") {
+        return false;
+    }
+
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+
+    const prazo = new Date(`${tarefa.prazo}T00:00:00`);
+
+    return !Number.isNaN(prazo.getTime()) && prazo < hoje;
+}
+
 function obterTarefasDerivadas() {
-    const termo = estado.busca
-        .trim()
-        .toLocaleLowerCase("pt-BR");
+    const termo = estado.busca.trim().toLocaleLowerCase("pt-BR");
 
-    const filtradas = estado.tarefas.filter((tarefa) => {
-        const titulo = String(tarefa.titulo ?? "")
-            .toLocaleLowerCase("pt-BR");
+    const filtradas = estado.tarefas.filter((t) =>
+        String(t.titulo ?? "")
+            .toLocaleLowerCase("pt-BR")
+            .includes(termo) &&
+        (estado.status === "todos" || t.status === estado.status) &&
+        (estado.prioridade === "todas" || t.prioridade === estado.prioridade)
+    );
 
-        const correspondeBusca = titulo.includes(termo);
+    const tarefasComPrazo = filtradas.map((tarefa) => ({
+        ...tarefa,
+        atrasada: tarefaEstaAtrasada(tarefa)
+    }));
 
-        const correspondeStatus =
-            estado.status === "todos" ||
-            tarefa.status === estado.status;
+    return [...tarefasComPrazo].sort((a, b) => {
+        const parse = (data) => {
+            const numero = data
+                ? Date.parse(`${data}T00:00:00`)
+                : NaN;
 
-        const correspondePrioridade =
-            estado.prioridade === "todas" ||
-            tarefa.prioridade === estado.prioridade;
+            return Number.isNaN(numero)
+                ? Number.POSITIVE_INFINITY
+                : numero;
+        };
 
-        return (
-            correspondeBusca &&
-            correspondeStatus &&
-            correspondePrioridade
-        );
-    });
+        const delta = parse(a.prazo) - parse(b.prazo);
 
-    return [...filtradas].sort((a, b) => {
-        const prazoA = obterValorPrazo(a.prazo);
-        const prazoB = obterValorPrazo(b.prazo);
-
-        // Tarefas sem prazo válido ficam sempre no final.
-        if (prazoA === null && prazoB === null) {
-            return 0;
-        }
-
-        if (prazoA === null) {
-            return 1;
-        }
-
-        if (prazoB === null) {
-            return -1;
-        }
-
-        if (estado.ordenacao === "prazo-desc") {
-            return prazoB - prazoA;
-        }
-
-        return prazoA - prazoB;
+        return estado.ordenacao === "prazo-asc"
+            ? delta
+            : -delta;
     });
 }
 
