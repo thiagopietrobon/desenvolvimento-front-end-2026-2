@@ -1057,6 +1057,13 @@ html[data-tema="escuro"] .cartao {
     border-color: var(--border);
 }
 
+html[data-tema="escuro"] .item-radio input:checked + label {
+    border-color: #7f8cff;
+    background: #5964d8;
+    color: #fff;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
 html[data-tema="escuro"] .cartao {
     border-color: var(--border-strong);
 }
