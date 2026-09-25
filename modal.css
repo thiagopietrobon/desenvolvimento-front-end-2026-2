@@ -1,0 +1,374 @@
+/* =========================================================
+   MODAL DE TAREFA
+   ========================================================= */
+
+.modal-tarefa {
+    width: min(620px, calc(100vw - 32px));
+    max-width: 620px;
+    max-height: min(760px, calc(100vh - 32px));
+    margin: auto;
+    padding: 0;
+    border: 1px solid #dfe4ef;
+    border-radius: 18px;
+    background: #ffffff;
+    color: #20243a;
+    box-shadow: 0 24px 70px rgba(35, 44, 85, 0.22);
+    overflow: hidden;
+}
+
+.modal-tarefa::backdrop {
+    background: rgba(23, 31, 60, 0.42);
+    backdrop-filter: blur(3px);
+}
+
+.modal-tarefa-conteudo {
+    display: flex;
+    flex-direction: column;
+    max-height: min(760px, calc(100vh - 32px));
+}
+
+.modal-tarefa-topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 22px 24px 18px;
+    border-bottom: 1px solid #e9edf5;
+}
+
+.modal-tarefa-topo h2 {
+    margin: 0;
+    color: #252a46;
+    font-family: "Nunito", sans-serif;
+    font-size: 1.35rem;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.modal-tarefa-fechar {
+    flex-shrink: 0;
+    min-width: 40px;
+    min-height: 40px;
+    border: 1px solid #dfe4ef;
+    border-radius: 10px;
+    background: #f8f9fc;
+    color: #525a73;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 160ms ease, border-color 160ms ease,
+        color 160ms ease, transform 160ms ease;
+}
+
+.modal-tarefa-fechar:hover {
+    border-color: #cbd2e3;
+    background: #f1f3f9;
+    color: #303650;
+}
+
+.modal-tarefa-fechar:active { transform: scale(0.97); }
+
+.modal-tarefa-corpo {
+    overflow-y: auto;
+    padding: 22px 24px 24px;
+}
+
+.modal-tarefa-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.modal-tarefa-campo {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin: 0;
+    color: #414861;
+    font-size: 0.82rem;
+    font-weight: 750;
+}
+
+.modal-tarefa-campo > input,
+.modal-tarefa-campo > select {
+    width: 100%;
+    min-height: 44px;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border: 1px solid #d9dfeb;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #242941;
+    font-family: inherit;
+    font-size: 0.92rem;
+    outline: none;
+    transition: border-color 160ms ease, box-shadow 160ms ease,
+        background 160ms ease;
+}
+
+.modal-tarefa-campo > input:hover,
+.modal-tarefa-campo > select:hover {
+    border-color: #c4ccdd;
+}
+
+.modal-tarefa-campo > input:focus,
+.modal-tarefa-campo > select:focus {
+    border-color: #5964d8;
+    box-shadow: 0 0 0 3px rgba(89, 100, 216, 0.13);
+}
+
+.modal-tarefa-campo input[type="date"] {
+    min-height: 46px;
+    cursor: pointer;
+}
+
+.modal-tarefa-segmentado {
+    min-width: 0;
+    padding: 0;
+    border: 0;
+}
+
+.modal-tarefa-segmentado legend {
+    width: 100%;
+    margin-bottom: 7px;
+    color: #414861;
+    font-size: 0.82rem;
+    font-weight: 750;
+}
+
+.grupo-segmentado {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    width: 100%;
+    border: 1px solid #d9dfeb;
+    border-radius: 11px;
+    background: #f8f9fc;
+    overflow: hidden;
+}
+
+.modal-tarefa-segmentado--prioridade .grupo-segmentado {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.botao-segmentado {
+    min-height: 44px;
+    padding: 9px 10px;
+    border: 0;
+    border-right: 1px solid #d9dfeb;
+    background: transparent;
+    color: #5a6279;
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 750;
+    cursor: pointer;
+    transition: background 160ms ease, color 160ms ease,
+        box-shadow 160ms ease;
+}
+
+.botao-segmentado:last-child { border-right: 0; }
+
+.botao-segmentado:hover {
+    background: #eef0fb;
+    color: #4149a8;
+}
+
+.botao-segmentado.ativo {
+    background: #5964d8;
+    color: #ffffff;
+    box-shadow: inset 0 0 0 1px #5964d8;
+}
+
+.botao-segmentado:focus-visible {
+    position: relative;
+    z-index: 2;
+    outline: 3px solid rgba(89, 100, 216, 0.25);
+    outline-offset: -3px;
+}
+
+.modal-tarefa-form > p {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    margin: -3px 0 0;
+    color: #6c7388;
+    font-size: 0.82rem;
+    line-height: 1.45;
+}
+
+.modal-tarefa-form > p strong {
+    color: #414861;
+    font-weight: 750;
+}
+
+.modal-tarefa-acoes {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 4px;
+    padding-top: 18px;
+    border-top: 1px solid #e9edf5;
+}
+
+.modal-tarefa-acoes button {
+    min-height: 42px;
+    padding: 9px 15px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 750;
+    cursor: pointer;
+    transition: background 160ms ease, border-color 160ms ease,
+        color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+.modal-tarefa-acoes button:active { transform: translateY(1px); }
+
+.botao-secundario {
+    border: 1px solid #d9dfeb;
+    background: #ffffff;
+    color: #515a72;
+}
+
+.botao-secundario:hover {
+    border-color: #c6cedf;
+    background: #f6f7fa;
+}
+
+.botao-primario {
+    border: 1px solid #5964d8;
+    background: #5964d8;
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(89, 100, 216, 0.18);
+}
+
+.botao-primario:hover {
+    border-color: #4d57c6;
+    background: #4d57c6;
+    box-shadow: 0 6px 14px rgba(89, 100, 216, 0.22);
+}
+
+.botao-excluir-tarefa {
+    margin-right: auto;
+    border: 1px solid #f0c9cd;
+    background: #fff7f7;
+    color: #b42335;
+}
+
+.botao-excluir-tarefa:hover {
+    border-color: #e7aeb5;
+    background: #fff0f1;
+}
+
+.modal-tarefa button:focus-visible,
+.modal-tarefa input:focus-visible,
+.modal-tarefa select:focus-visible {
+    outline: 3px solid rgba(89, 100, 216, 0.24);
+    outline-offset: 2px;
+}
+
+html[data-tema="escuro"] .modal-tarefa {
+    border-color: #383f59;
+    background: #20243a;
+    color: #f2f4fb;
+}
+
+html[data-tema="escuro"] .modal-tarefa-topo,
+html[data-tema="escuro"] .modal-tarefa-acoes {
+    border-color: #383f59;
+}
+
+html[data-tema="escuro"] .modal-tarefa-topo h2,
+html[data-tema="escuro"] .modal-tarefa-campo,
+html[data-tema="escuro"] .modal-tarefa-segmentado legend,
+html[data-tema="escuro"] .modal-tarefa-form > p strong {
+    color: #f2f4fb;
+}
+
+html[data-tema="escuro"] .modal-tarefa-campo > input,
+html[data-tema="escuro"] .modal-tarefa-campo > select,
+html[data-tema="escuro"] .modal-tarefa-fechar,
+html[data-tema="escuro"] .botao-secundario {
+    border-color: #4a526e;
+    background: #282d44;
+    color: #f2f4fb;
+}
+
+html[data-tema="escuro"] .grupo-segmentado {
+    border-color: #4a526e;
+    background: #282d44;
+}
+
+html[data-tema="escuro"] .botao-segmentado {
+    border-color: #4a526e;
+    color: #c5cbe0;
+}
+
+@media (max-width: 640px) {
+    .modal-tarefa {
+        width: calc(100vw - 20px);
+        max-height: calc(100vh - 20px);
+        border-radius: 15px;
+    }
+
+    .modal-tarefa-conteudo {
+        max-height: calc(100vh - 20px);
+    }
+
+    .modal-tarefa-topo { padding: 18px 18px 15px; }
+    .modal-tarefa-topo h2 { font-size: 1.15rem; }
+    .modal-tarefa-corpo { padding: 18px; }
+
+    .grupo-segmentado { grid-template-columns: 1fr 1fr; }
+
+    .modal-tarefa-segmentado--prioridade .grupo-segmentado {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .botao-segmentado {
+        min-height: 42px;
+        padding: 8px 7px;
+        font-size: 0.73rem;
+    }
+
+    .modal-tarefa-acoes { flex-wrap: wrap; }
+
+    .botao-excluir-tarefa {
+        margin-right: 0;
+        margin-left: auto;
+    }
+}
+
+@media (max-width: 420px) {
+    .modal-tarefa-acoes {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .botao-excluir-tarefa {
+        grid-column: 1 / -1;
+        grid-row: 1;
+        margin: 0;
+    }
+
+    .botao-secundario {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    .botao-primario {
+        grid-column: 2;
+        grid-row: 2;
+    }
+
+    .modal-tarefa-segmentado--prioridade .grupo-segmentado {
+        grid-template-columns: 1fr;
+    }
+
+    .botao-segmentado {
+        border-right: 0;
+        border-bottom: 1px solid #d9dfeb;
+    }
+
+    .botao-segmentado:last-child { border-bottom: 0; }
+}

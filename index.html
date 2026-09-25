@@ -1,139 +1,821 @@
 <!doctype html>
-<html lang="pt-br">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="styles.css">
-        <title>Gerenciador de Tarefas</title>
-        <script type="module" src="js/app.js"></script>
-    </head>
-    <body>
-        <header>
-            <h1>Gerenciador de Tarefas Acadêmicas</h1>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="theme-color" content="#f4f6fb">
+    <meta
+        name="description"
+        content="Organize e acompanhe suas tarefas acadêmicas por etapa, prioridade e prazo."
+    >
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="modal.css">
+
+    <title>Gerenciador de Tarefas Acadêmicas</title>
+
+    <script type="module" src="js/app.js"></script>
+</head>
+
+<body>
+
+<div class="aplicacao">
+
+    <!-- =====================================================
+         SIDEBAR
+         ===================================================== -->
+
+    <aside
+        class="sidebar"
+        id="sidebar"
+        aria-label="Navegação principal"
+    >
+
+        <a
+            class="marca"
+            href="#inicio"
+            aria-label="Início do gerenciador"
+        >
+            <span class="marca-simbolo">✦</span>
+
+            <span class="marca-texto">
+                Task<span>Flow</span>
+            </span>
+        </a>
+
+        <p class="sidebar-legenda">
+            ESPAÇO DE TRABALHO
+        </p>
+
+        <nav class="navegacao">
+
+            <a
+                class="nav-link ativo"
+                href="#quadro"
+                aria-current="page"
+            >
+                <span aria-hidden="true">▦</span>
+                Meu quadro
+            </a>
+
+            <a
+                class="nav-link"
+                href="#filtros"
+            >
+                <span aria-hidden="true">⌕</span>
+                Buscar tarefas
+            </a>
+
+        </nav>
+
+        <div class="sidebar-rodape">
+
+            <span
+                class="avatar-iniciais"
+                aria-hidden="true"
+            >
+                TH
+            </span>
+
+            <span>
+                <strong>Meu espaço</strong>
+                <small>Organização acadêmica</small>
+            </span>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =====================================================
+         CONTEÚDO
+         ===================================================== -->
+
+    <div
+        class="conteudo-app"
+        id="inicio"
+    >
+
+        <!-- =================================================
+             TOPBAR
+             ================================================= -->
+
+        <header class="topbar">
+
+            <button
+                class="botao-menu"
+                id="btn-menu"
+                type="button"
+                aria-controls="sidebar"
+                aria-expanded="false"
+                aria-label="Abrir menu"
+            >
+                <span aria-hidden="true">☰</span>
+            </button>
+
+            <div class="topbar-titulos">
+
+                <p class="sobretitulo">
+                    ÁREA DE TRABALHO
+                </p>
+
+                <h1>
+                    Gerenciador de Tarefas
+                </h1>
+
+            </div>
+
+            <div class="topbar-marca">
+                <span aria-hidden="true">✦</span>
+                Organize seu semestre
+            </div>
+
+            <button
+                class="botao-tema"
+                id="btn-tema"
+                type="button"
+                aria-pressed="false"
+                aria-label="Ativar modo escuro"
+                title="Ativar modo escuro"
+            >
+                <span aria-hidden="true">☾</span>
+                <span class="botao-tema-texto">Modo escuro</span>
+            </button>
+
         </header>
 
+
+        <!-- =================================================
+             CONTEÚDO PRINCIPAL
+             ================================================= -->
+
         <main>
-            <!-- Busca e Filtros -->
-            <section aria-labelledby="titulo-filtros">
-                <h2 id="titulo-filtros">Busca e Filtros</h2>
-                <form id="form-filtros" action="#" method="GET">
-                    
-                    <!-- Linha Superior: Busca (Topo Esquerdo), Ordenação e Limpar Filtros -->
+
+            <!-- =============================================
+                 PROGRESSO
+                 ============================================= -->
+
+            <section
+                class="boas-vindas"
+                aria-labelledby="titulo-boas-vindas"
+            >
+
+                <div>
+
+                    <p class="sobretitulo">
+                        VISÃO GERAL
+                    </p>
+
+                    <h2 id="titulo-boas-vindas">
+                        Acompanhe seu progresso
+                    </h2>
+
+                    <p class="texto-suave">
+                        Todas as suas tarefas acadêmicas,
+                        organizadas em um só lugar.
+                    </p>
+
+                </div>
+
+
+                <div
+                    class="progresso-geral"
+                    aria-live="polite"
+                >
+
+                    <div class="progresso-legenda">
+
+                        <span>
+                            Progresso geral
+                        </span>
+
+                        <strong id="progresso-percentual">
+                            0%
+                        </strong>
+
+                    </div>
+
+                    <div
+                        class="barra-progresso"
+                        id="barra-progresso"
+                        role="progressbar"
+                        aria-label="Progresso geral das tarefas"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                        aria-valuenow="0"
+                    >
+
+                        <span
+                            id="barra-progresso-preenchimento"
+                        ></span>
+
+                    </div>
+
+                    <small id="progresso-resumo">
+                        Carregando tarefas…
+                    </small>
+
+                </div>
+
+            </section>
+
+
+            <!-- =============================================
+                 FILTROS
+                 ============================================= -->
+
+            <section
+                class="painel-filtros"
+                id="filtros"
+                aria-labelledby="titulo-filtros"
+            >
+
+                <div class="painel-filtros-cabecalho">
+
+                    <div>
+
+                        <h2 id="titulo-filtros">
+                            Suas tarefas
+                        </h2>
+
+                        <p class="texto-suave">
+                            Encontre e organize o que precisa fazer.
+                        </p>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        id="btn-limpar"
+                        class="botao-limpar"
+                    >
+                        Limpar tudo
+                    </button>
+
+                </div>
+
+
+                <form
+                    id="form-filtros"
+                    action="#"
+                    method="GET"
+                >
+
+                    <!-- Busca + controles principais -->
+
                     <div class="linha-controles-topo">
+
                         <div class="campo-busca">
-                            <label for="busca-titulo">Buscar por título da tarefa:</label>
-                            <input type="search" id="busca-titulo" name="busca" placeholder="Digite para buscar...">
+
+                            <label for="busca-titulo">
+                                Buscar tarefa
+                            </label>
+
+                            <div class="input-com-icone">
+
+                                <span aria-hidden="true">
+                                    ⌕
+                                </span>
+
+                                <input
+                                    type="search"
+                                    id="busca-titulo"
+                                    name="busca"
+                                    placeholder="Buscar pelo título…"
+                                    autocomplete="off"
+                                >
+
+                            </div>
+
                         </div>
+
+
+                        <button
+                            type="button"
+                            id="btn-filtros-mobile"
+                            class="btn-filtros-mobile"
+                            aria-controls="painel-filtros-opcoes"
+                            aria-expanded="false"
+                        >
+                            Filtros
+
+                            <span
+                                class="contador-filtros"
+                                id="contador-filtros"
+                                aria-label="Quantidade de filtros ativos"
+                            >
+                                0
+                            </span>
+                        </button>
+
 
                         <div class="campo-ordenacao">
-                            <label for="ordenacao-prazo">Ordenar por Prazo:</label>
-                            <select id="ordenacao-prazo" name="ordenacao">
-                                <option value="prazo-asc">Mais próximas primeiro</option>
-                                <option value="prazo-desc">Mais distantes primeiro</option>
+
+                            <label for="ordenacao-prazo">
+                                Ordenar por prazo
+                            </label>
+
+                            <select
+                                id="ordenacao-prazo"
+                                name="ordenacao"
+                            >
+
+                                <option value="prazo-asc">
+                                    Mais próximas primeiro
+                                </option>
+
+                                <option value="prazo-desc">
+                                    Mais distantes primeiro
+                                </option>
+
                             </select>
+
                         </div>
 
-                        <div class="acoes-formulario">
-                            <button type="button" id="btn-limpar">Limpar Filtros</button>
+                    </div>
+
+
+                    <!-- =====================================
+                         OPÇÕES DE FILTRO
+                         ===================================== -->
+
+                    <div
+                        class="painel-filtros-opcoes"
+                        id="painel-filtros-opcoes"
+                        hidden
+                    >
+
+                        <div class="linha-filtros-radios">
+
+                            <!-- STATUS -->
+
+                            <fieldset>
+
+                                <legend>
+                                    Status
+                                </legend>
+
+                                <div class="opcoes-filtro">
+
+                                    <div class="item-radio">
+
+                                        <input
+                                            type="radio"
+                                            id="status-todos"
+                                            name="status"
+                                            value="todos"
+                                            checked
+                                        >
+
+                                        <label for="status-todos">
+                                            Todos
+                                        </label>
+
+                                    </div>
+
+
+                                    <div class="item-radio">
+
+                                        <input
+                                            type="radio"
+                                            id="status-fazer"
+                                            name="status"
+                                            value="a-fazer"
+                                        >
+
+                                        <label for="status-fazer">
+                                            A Fazer
+                                        </label>
+
+                                    </div>
+
+
+                                    <div class="item-radio">
+
+                                        <input
+                                            type="radio"
+                                            id="status-andamento"
+                                            name="status"
+                                            value="em-andamento"
+                                        >
+
+                                        <label for="status-andamento">
+                                            Em Andamento
+                                        </label>
+
+                                    </div>
+
+
+                                    <div class="item-radio">
+
+                                        <input
+                                            type="radio"
+                                            id="status-revisao"
+                                            name="status"
+                                            value="em-revisao"
+                                        >
+
+                                        <label for="status-revisao">
+                                            Em Revisão
+                                        </label>
+
+                                    </div>
+
+
+                                    <div class="item-radio">
+
+                                        <input
+                                            type="radio"
+                                            id="status-concluida"
+                                            name="status"
+                                            value="concluida"
+                                        >
+
+                                        <label for="status-concluida">
+                                            Concluída
+                                        </label>
+
+                                    </div>
+
+                                </div>
+
+                            </fieldset>
+
+
+                            <!-- PRIORIDADE -->
+
+                            <fieldset>
+
+                                <legend>
+                                    Prioridade
+                                </legend>
+
+                                <div class="opcoes-filtro">
+
+                                    <div class="item-radio">
+
+                                        <input
+                                            type="radio"
+                                            id="prioridade-todas"
+                                            name="prioridade"
+                                            value="todas"
+                                            checked
+                                        >
+
+                                        <label for="prioridade-todas">
+                                            Todas
+                                        </label>
+
+                                    </div>
+
+
+                                    <div class="item-radio">
+
+                                        <input
+                                            type="radio"
+                                            id="prioridade-baixa"
+                                            name="prioridade"
+                                            value="Baixa"
+                                        >
+
+                                        <label for="prioridade-baixa">
+                                            Baixa
+                                        </label>
+
+                                    </div>
+
+
+                                    <div class="item-radio">
+
+                                        <input
+                                            type="radio"
+                                            id="prioridade-media"
+                                            name="prioridade"
+                                            value="Média"
+                                        >
+
+                                        <label for="prioridade-media">
+                                            Média
+                                        </label>
+
+                                    </div>
+
+
+                                    <div class="item-radio">
+
+                                        <input
+                                            type="radio"
+                                            id="prioridade-alta"
+                                            name="prioridade"
+                                            value="Alta"
+                                        >
+
+                                        <label for="prioridade-alta">
+                                            Alta
+                                        </label>
+
+                                    </div>
+
+                                </div>
+
+                            </fieldset>
+
                         </div>
+
                     </div>
 
-                    <!-- Linha Inferior: Radios de Status e Prioridade -->
-                    <div class="linha-filtros-radios">
-                        <fieldset>
-                            <legend>Filtrar por Status</legend>
-                            
-                            <div class="item-radio">
-                                <input type="radio" id="status-todos" name="status" value="todos" checked>
-                                <label for="status-todos">Todos</label>
-                            </div>
 
-                            <div class="item-radio">
-                                <input type="radio" id="status-fazer" name="status" value="a-fazer">
-                                <label for="status-fazer">A Fazer</label>
-                            </div>
+                    <!-- Chips dos filtros ativos -->
 
-                            <div class="item-radio">
-                                <input type="radio" id="status-andamento" name="status" value="em-andamento">
-                                <label for="status-andamento">Em Andamento</label>
-                            </div>
-
-                            <div class="item-radio">
-                                <input type="radio" id="status-revisao" name="status" value="em-revisao">
-                                <label for="status-revisao">Em Revisão</label>
-                            </div>
-
-                            <div class="item-radio">
-                                <input type="radio" id="status-concluida" name="status" value="concluida">
-                                <label for="status-concluida">Concluída</label>
-                            </div>
-                        </fieldset>
-
-                        <fieldset>
-                            <legend>Filtrar por Prioridade</legend>
-                            
-                            <div class="item-radio">
-                                <input type="radio" id="prioridade-todas" name="prioridade" value="todas" checked>
-                                <label for="prioridade-todas">Todas</label>
-                            </div>
-
-                            <div class="item-radio">
-                                <input type="radio" id="prioridade-baixa" name="prioridade" value="Baixa">
-                                <label for="prioridade-baixa">Baixa</label>
-                            </div>
-
-                            <div class="item-radio">
-                                <input type="radio" id="prioridade-media" name="prioridade" value="Média">
-                                <label for="prioridade-media">Média</label>
-                            </div>
-
-                            <div class="item-radio">
-                                <input type="radio" id="prioridade-alta" name="prioridade" value="Alta">
-                                <label for="prioridade-alta">Alta</label>
-                            </div>
-                        </fieldset>
-                    </div>
+                    <div
+                        id="filtros-ativos"
+                        class="filtros-ativos"
+                        aria-live="polite"
+                    ></div>
 
                 </form>
-            </section>
-
-            <!-- Visão de Quadro -->
-            <section aria-labelledby="titulo-quadro" data-quadro>
-                <h2 id="titulo-quadro">Quadro de Projetos</h2>
-
-                <p data-estado role="status" aria-live="polite"></p>
-
-                <!-- A Fazer -->
-                <section aria-labelledby="quadro-a-fazer">
-                    <h3 id="quadro-a-fazer">A Fazer</h3>
-                    <ul data-lista-status="a-fazer"></ul>
-                </section>
-
-                <!-- Em Andamento -->
-                <section aria-labelledby="quadro-em-andamento">
-                    <h3 id="quadro-em-andamento">Em Andamento</h3>
-                    <ul data-lista-status="em-andamento"></ul>
-                </section>
-
-                <!-- Revisão -->
-                <section aria-labelledby="quadro-em-revisao">
-                    <h3 id="quadro-em-revisao">Em Revisão</h3>
-                    <ul data-lista-status="em-revisao"></ul>
-                </section>
-
-                <!-- Concluída -->
-                <section aria-labelledby="quadro-concluida">
-                    <h3 id="quadro-concluida">Concluída</h3>
-                    <ul data-lista-status="concluida"></ul>
-                </section>
 
             </section>
+
+
+            <!-- =============================================
+                 QUADRO
+                 ============================================= -->
+
+            <section
+                class="quadro-painel"
+                id="quadro"
+                aria-labelledby="titulo-quadro"
+                data-quadro
+            >
+
+                <div class="quadro-cabecalho">
+
+                    <div>
+
+                        <h2 id="titulo-quadro">
+                            Quadro de tarefas
+                        </h2>
+
+                        <p class="texto-suave">
+                            Acompanhe cada etapa do seu trabalho.
+                        </p>
+
+                    </div>
+
+                    <p class="quadro-ajuda">
+                        Selecione “Ver detalhes” para editar
+                        ou excluir uma tarefa.
+                    </p>
+
+                </div>
+
+
+                <!-- Estado de carregamento / erro -->
+
+                <p
+                    data-estado
+                    role="status"
+                    aria-live="polite"
+                ></p>
+
+
+                <!-- =========================================
+                     ABAS MOBILE
+                     ========================================= -->
+
+                <div
+                    class="abas-mobile"
+                    role="tablist"
+                    aria-label="Etapas do quadro"
+                >
+
+                    <button
+                        type="button"
+                        class="aba-mobile ativa"
+                        data-aba="a-fazer"
+                        role="tab"
+                        aria-selected="true"
+                    >
+                        A Fazer
+                    </button>
+
+                    <button
+                        type="button"
+                        class="aba-mobile"
+                        data-aba="em-andamento"
+                        role="tab"
+                        aria-selected="false"
+                    >
+                        Em Andamento
+                    </button>
+
+                    <button
+                        type="button"
+                        class="aba-mobile"
+                        data-aba="em-revisao"
+                        role="tab"
+                        aria-selected="false"
+                    >
+                        Em Revisão
+                    </button>
+
+                    <button
+                        type="button"
+                        class="aba-mobile"
+                        data-aba="concluida"
+                        role="tab"
+                        aria-selected="false"
+                    >
+                        Concluída
+                    </button>
+
+                </div>
+
+
+                <!-- =========================================
+                     COLUNAS
+                     ========================================= -->
+
+                <div class="quadro-colunas">
+
+                    <!-- A FAZER -->
+
+                    <section
+                        class="coluna coluna--todo"
+                        data-coluna="a-fazer"
+                        aria-labelledby="quadro-a-fazer"
+                    >
+
+                        <div class="coluna-cabecalho">
+
+                            <span
+                                class="ponto-status"
+                                aria-hidden="true"
+                            ></span>
+
+                            <h3 id="quadro-a-fazer">
+                                A Fazer
+                            </h3>
+
+                        </div>
+
+                        <ul data-lista-status="a-fazer"></ul>
+
+                        <p
+                            class="progresso-etapa"
+                            data-progresso-status="a-fazer"
+                        >
+                            0 tarefas
+                        </p>
+
+                    </section>
+
+
+                    <!-- EM ANDAMENTO -->
+
+                    <section
+                        class="coluna coluna--doing"
+                        data-coluna="em-andamento"
+                        aria-labelledby="quadro-em-andamento"
+                    >
+
+                        <div class="coluna-cabecalho">
+
+                            <span
+                                class="ponto-status"
+                                aria-hidden="true"
+                            ></span>
+
+                            <h3 id="quadro-em-andamento">
+                                Em Andamento
+                            </h3>
+
+                        </div>
+
+                        <ul data-lista-status="em-andamento"></ul>
+
+                        <p
+                            class="progresso-etapa"
+                            data-progresso-status="em-andamento"
+                        >
+                            0 tarefas
+                        </p>
+
+                    </section>
+
+
+                    <!-- EM REVISÃO -->
+
+                    <section
+                        class="coluna coluna--review"
+                        data-coluna="em-revisao"
+                        aria-labelledby="quadro-em-revisao"
+                    >
+
+                        <div class="coluna-cabecalho">
+
+                            <span
+                                class="ponto-status"
+                                aria-hidden="true"
+                            ></span>
+
+                            <h3 id="quadro-em-revisao">
+                                Em Revisão
+                            </h3>
+
+                        </div>
+
+                        <ul data-lista-status="em-revisao"></ul>
+
+                        <p
+                            class="progresso-etapa"
+                            data-progresso-status="em-revisao"
+                        >
+                            0 tarefas
+                        </p>
+
+                    </section>
+
+
+                    <!-- CONCLUÍDA -->
+
+                    <section
+                        class="coluna coluna--done"
+                        data-coluna="concluida"
+                        aria-labelledby="quadro-concluida"
+                    >
+
+                        <div class="coluna-cabecalho">
+
+                            <span
+                                class="ponto-status"
+                                aria-hidden="true"
+                            ></span>
+
+                            <h3 id="quadro-concluida">
+                                Concluída
+                            </h3>
+
+                        </div>
+
+                        <ul data-lista-status="concluida"></ul>
+
+                        <p
+                            class="progresso-etapa"
+                            data-progresso-status="concluida"
+                        >
+                            0 tarefas
+                        </p>
+
+                    </section>
+
+                </div>
+
+            </section>
+
         </main>
 
+
+        <!-- =================================================
+             RODAPÉ
+             ================================================= -->
+
         <footer>
-            <p>Desenvolvido por: <strong>Thiago Henrique B. Pietrobon</strong></p>
-            <p>Disciplina: <strong>Desenvolvimento Front-End</strong></p>
+
+            <span>
+                TaskFlow · Gerenciador de Tarefas Acadêmicas
+            </span>
+
+            <span>
+                Desenvolvido por
+                <strong>
+                    Thiago Henrique B. Pietrobon
+                </strong>
+                · Desenvolvimento Front-End
+            </span>
+
         </footer>
 
-    </body>
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     SOMBRA DO MENU MOBILE
+     ========================================================= -->
+
+<div
+    class="sidebar-sombra"
+    id="sidebar-sombra"
+    hidden
+></div>
+
+</body>
 </html>
