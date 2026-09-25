@@ -267,6 +267,43 @@
     outline-offset: 2px;
 }
 
+html[data-tema="escuro"] .modal-tarefa {
+    border-color: #383f59;
+    background: #20243a;
+    color: #f2f4fb;
+}
+
+html[data-tema="escuro"] .modal-tarefa-topo,
+html[data-tema="escuro"] .modal-tarefa-acoes {
+    border-color: #383f59;
+}
+
+html[data-tema="escuro"] .modal-tarefa-topo h2,
+html[data-tema="escuro"] .modal-tarefa-campo,
+html[data-tema="escuro"] .modal-tarefa-segmentado legend,
+html[data-tema="escuro"] .modal-tarefa-form > p strong {
+    color: #f2f4fb;
+}
+
+html[data-tema="escuro"] .modal-tarefa-campo > input,
+html[data-tema="escuro"] .modal-tarefa-campo > select,
+html[data-tema="escuro"] .modal-tarefa-fechar,
+html[data-tema="escuro"] .botao-secundario {
+    border-color: #4a526e;
+    background: #282d44;
+    color: #f2f4fb;
+}
+
+html[data-tema="escuro"] .grupo-segmentado {
+    border-color: #4a526e;
+    background: #282d44;
+}
+
+html[data-tema="escuro"] .botao-segmentado {
+    border-color: #4a526e;
+    color: #c5cbe0;
+}
+
 @media (max-width: 640px) {
     .modal-tarefa {
         width: calc(100vw - 20px);

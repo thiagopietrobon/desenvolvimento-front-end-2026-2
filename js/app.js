@@ -6,6 +6,7 @@ import {
 } from "./renderizacao.js";
 
 const CHAVE_TAREFAS = "gerenciador-academico-tarefas";
+const CHAVE_TEMA = "gerenciador-academico-tema";
 
 const estado = {
     tarefas: [],
@@ -19,6 +20,62 @@ const estado = {
 
 let temporizadorAviso;
 let sincronizarAbaMobile = () => {};
+
+function instalarTema() {
+    const botao = document.getElementById("btn-tema");
+    const temaSalvo = localStorage.getItem(CHAVE_TEMA);
+    const temaInicial = temaSalvo === "escuro";
+
+    const atualizarTema = (escuro) => {
+        document.documentElement.dataset.tema = escuro
+            ? "escuro"
+            : "claro";
+
+        if (!botao) {
+            return;
+        }
+
+        botao.setAttribute("aria-pressed", String(escuro));
+        botao.setAttribute(
+            "aria-label",
+            escuro
+                ? "Ativar modo claro"
+                : "Ativar modo escuro"
+        );
+        botao.setAttribute(
+            "title",
+            escuro
+                ? "Ativar modo claro"
+                : "Ativar modo escuro"
+        );
+
+        const icone = botao.querySelector("span");
+        const texto = botao.querySelector(".botao-tema-texto");
+
+        if (icone) {
+            icone.textContent = escuro ? "☀" : "☾";
+        }
+
+        if (texto) {
+            texto.textContent = escuro
+                ? "Modo claro"
+                : "Modo escuro";
+        }
+    };
+
+    atualizarTema(temaInicial);
+
+    botao?.addEventListener("click", () => {
+        const escuro =
+            document.documentElement.dataset.tema !== "escuro";
+
+        atualizarTema(escuro);
+        localStorage.setItem(
+            CHAVE_TEMA,
+            escuro ? "escuro" : "claro"
+        );
+    });
+}
 
 
 // =========================================================
@@ -935,6 +992,8 @@ function instalarNavegacaoMobile() {
 // =========================================================
 
 async function iniciarApp() {
+    instalarTema();
+
     const quadro =
         document.querySelector(
             "[data-quadro]"
