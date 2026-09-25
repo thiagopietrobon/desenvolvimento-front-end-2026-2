@@ -1,15 +1,11 @@
 import { carregarTarefas } from "./api.js";
 import { renderizarEstado } from "./estados.js";
-import { instalarEventosDoQuadro } from "./renderizacao.js";
+import {
+    STATUS_LABELS,
+    instalarEventosDoQuadro
+} from "./renderizacao.js";
 
 const CHAVE_TAREFAS = "gerenciador-academico-tarefas";
-
-const STATUS_LABELS = {
-    "a-fazer": "A Fazer",
-    "em-andamento": "Em Andamento",
-    "em-revisao": "Em Revisão",
-    concluida: "Concluída"
-};
 
 const estado = {
     tarefas: [],
@@ -22,6 +18,7 @@ const estado = {
 };
 
 let temporizadorAviso;
+let sincronizarAbaMobile = () => {};
 
 
 // =========================================================
@@ -103,9 +100,9 @@ function tarefaEstaAtrasada(tarefa) {
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
 
-    const prazo = new Date(`${tarefa.prazo}T00:00:00`);
+    const prazo = obterValorPrazo(tarefa.prazo);
 
-    return !Number.isNaN(prazo.getTime()) && prazo < hoje;
+    return prazo !== null && prazo < hoje.getTime();
 }
 
 
@@ -138,17 +135,18 @@ function obterTarefasDerivadas() {
     }));
 
     return [...tarefasComPrazo].sort((a, b) => {
-        const parse = (data) => {
-            const numero = data
-                ? Date.parse(`${data}T00:00:00`)
-                : NaN;
+        const prazoA = obterValorPrazo(a.prazo);
+        const prazoB = obterValorPrazo(b.prazo);
 
-            return Number.isNaN(numero)
-                ? Number.POSITIVE_INFINITY
-                : numero;
-        };
+        if (prazoA === null || prazoB === null) {
+            return prazoA === prazoB
+                ? 0
+                : prazoA === null
+                    ? 1
+                    : -1;
+        }
 
-        const delta = parse(a.prazo) - parse(b.prazo);
+        const delta = prazoA - prazoB;
 
         return estado.ordenacao === "prazo-asc"
             ? delta
@@ -397,6 +395,8 @@ function renderizar() {
         estado,
         tarefasVisiveis
     );
+
+    sincronizarAbaMobile(tarefasVisiveis);
 
     atualizarProgresso(
         tarefasVisiveis
@@ -889,6 +889,25 @@ function instalarNavegacaoMobile() {
                     status
                 );
             }
+        );
+    };
+
+    sincronizarAbaMobile = (tarefasVisiveis = []) => {
+        const statusAtual = abas.find(
+            (aba) => aba.classList.contains("ativa")
+        )?.dataset.aba;
+
+        const statusComTarefas = tarefasVisiveis.find(
+            (tarefa) => tarefa.status === statusAtual
+        )?.status;
+
+        const primeiroStatusComTarefas = tarefasVisiveis[0]?.status;
+
+        ativarAba(
+            statusComTarefas ||
+            primeiroStatusComTarefas ||
+            statusAtual ||
+            abas[0]?.dataset.aba
         );
     };
 

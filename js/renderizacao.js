@@ -1,4 +1,4 @@
-const ROTULOS_STATUS = {
+export const STATUS_LABELS = {
     "a-fazer": "A Fazer",
     "em-andamento": "Em Andamento",
     "em-revisao": "Em Revisão",
@@ -226,7 +226,7 @@ function abrirDetalhes(
             "status",
             STATUS.map((status) => [
                 status,
-                ROTULOS_STATUS[status]
+                STATUS_LABELS[status]
             ]),
             tarefa.status
         )
@@ -349,7 +349,7 @@ export function criarCartao(tarefa) {
     const status = document.createElement("span");
     status.className = `badge-status badge-status--${tarefa.status}`;
     status.textContent =
-        ROTULOS_STATUS[tarefa.status] || tarefa.status;
+        STATUS_LABELS[tarefa.status] || tarefa.status;
 
     topo.append(status);
 
